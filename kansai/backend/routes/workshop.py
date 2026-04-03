@@ -6,6 +6,16 @@ import uuid
 
 from database.database import get_db
 from models.models import Form, User
+import cloudinary
+import cloudinary.uploader
+from config import Config
+
+if Config.CLOUDINARY_API_KEY:
+    cloudinary.config(
+        cloud_name=Config.CLOUDINARY_CLOUD_NAME,
+        api_key=Config.CLOUDINARY_API_KEY,
+        api_secret=Config.CLOUDINARY_API_SECRET
+    )
 
 router = APIRouter(prefix="/workshop", tags=["Workshop"])
 
@@ -38,8 +48,18 @@ def create_form(form_data: dict, db: Session = Depends(get_db)):
 
 @router.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
-    # Mock Cloudinary/S3 Integration
-    # Real integration would use `cloudinary.uploader.upload(file.file)`
+    # Cloudinary Integration
+    if Config.CLOUDINARY_API_KEY:
+        try:
+            result = cloudinary.uploader.upload(file.file)
+            return {
+                "url": result.get("secure_url"),
+                "filename": file.filename
+            }
+        except Exception as e:
+            return {"error": str(e)}
+            
+    # Mock Cloudinary/S3 Integration fallback
     return {
         "url": f"https://mock-cloudinary.com/{file.filename}",
         "filename": file.filename
