@@ -32,6 +32,10 @@ def read_root():
 @app.on_event("startup")
 def on_startup():
     print("Starting up FormFlow API...")
-    # NOTE: In a real environment with Postgres running:
-    # models.Base.metadata.create_all(bind=engine)
-    pass
+    try:
+        # Create database tables if Postgres is securely connected
+        models.Base.metadata.create_all(bind=engine)
+        print("Database connected and tables initialized.")
+    except Exception as e:
+        print(f"Postgres Database Offline - WebSockets will remain active: {e}")
+
