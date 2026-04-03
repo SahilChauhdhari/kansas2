@@ -34,7 +34,7 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    forms = relationship("Form", foreign_keys="[Form.created_by]", back_populates="owner")
+    forms = relationship("Form", foreign_keys="Form.created_by", back_populates="owner")
 
     __table_args__ = (
         Index('ix_users_email', 'email'),
