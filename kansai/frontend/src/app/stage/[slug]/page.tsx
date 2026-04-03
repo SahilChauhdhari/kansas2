@@ -77,7 +77,10 @@ export default function StageForm({ params }: StageProps) {
 
   const theme = schema.theme || { primary_color: '#000000', background: '#ffffff', text_color: '#000000', font_family: 'monospace', border_radius: 0 };
   const settings = schema.settings || { gamification: false };
-  const fields = schema.fields || [];
+  
+  // Backwards compatibility: Support both new Graph Nodes or old flat Fields
+  const parsedNodes = schema.nodes ? schema.nodes.map((n: any) => ({ ...n.data, id: n.id })) : [];
+  const fields = schema.fields && schema.fields.length > 0 ? schema.fields : parsedNodes;
 
   const completedFieldsCount = Object.keys(formData).filter(k => formData[k].trim() !== '').length;
   const progressPercentage = fields.length === 0 ? 0 : Math.round((completedFieldsCount / fields.length) * 100);
