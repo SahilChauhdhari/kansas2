@@ -94,7 +94,7 @@ export default function Dashboard() {
                 <Link href={`/workshop/${form.id}`}>
                   <button className="btn btn-small">Build</button>
                 </Link>
-                <Link href={`/analytics?id=${form.id}`}>
+                <Link href={`/analytics/${form.id}`}>
                   <button className="btn btn-small btn-secondary">Stats</button>
                 </Link>
                 <Link href={`/stage/${form.slug}`} target="_blank">

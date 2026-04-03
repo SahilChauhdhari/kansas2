@@ -42,7 +42,7 @@ export default function Home() {
               </div>
               <ul className="nav-links">
                   <li><a href="#features">Features</a></li>
-                  <li><Link href="/workshop">Workshop</Link></li>
+                  <li><Link href="/dashboard">Workshop</Link></li>
                   <li><Link href="/analytics">Analytics</Link></li>
                   {user ? (
                     <li><button onClick={logout} className="nav-link-btn">Logout ({user.username})</button></li>
@@ -63,7 +63,7 @@ export default function Home() {
                   <h1 className="hero-title">Build Forms,<br/>Not Friction</h1>
                   <p className="hero-subtitle">Create powerful forms with zero coding. Launch in minutes. Scale infinitely.</p>
                   <div className="hero-buttons">
-                      <Link href="/workshop">
+                      <Link href="/dashboard">
                         <button className="btn btn-primary">Start Building Free</button>
                       </Link>
                       <button className="btn btn-secondary">Watch Demo</button>

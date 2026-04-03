@@ -24,6 +24,17 @@ type Cursor = { id: string; x: number; y: number };
 type ThemeConfig = { primary_color: string; background: string; font_family: string; border_radius: number };
 type FormSettings = { gamification: boolean };
 
+const DEFAULT_THEME: ThemeConfig = { 
+  primary_color: '#000000', 
+  background: '#ffffff', 
+  font_family: 'monospace', 
+  border_radius: 0 
+};
+
+const DEFAULT_SETTINGS: FormSettings = { 
+  gamification: false 
+};
+
 export default function Workshop() {
   const { id } = useParams();
   const { user, token, loading: authLoading } = useAuth();
@@ -34,8 +45,8 @@ export default function Workshop() {
   const [remoteCursors, setRemoteCursors] = useState<Record<string, Cursor>>({});
   const [aiPrompt, setAiPrompt] = useState('');
   
-  const [theme, setTheme] = useState<ThemeConfig>({ primary_color: '#000000', background: '#ffffff', font_family: 'monospace', border_radius: 0 });
-  const [settings, setSettings] = useState<FormSettings>({ gamification: false });
+  const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_THEME);
+  const [settings, setSettings] = useState<FormSettings>(DEFAULT_SETTINGS);
 
   const { sendMessage, lastMessage, isConnected } = useWebSocket(`ws://localhost:8000/ws/form/${id}`);
   const myId = useRef(Math.random().toString(36).substring(7));
@@ -60,8 +71,8 @@ export default function Workshop() {
         if (data.edges) setEdges(data.edges);
         else if (data.field_order) setEdges(data.field_order);
         
-        if (data.theme) setTheme(data.theme);
-        if (data.settings) setSettings(data.settings);
+        if (data.theme) setTheme({ ...DEFAULT_THEME, ...data.theme });
+        if (data.settings) setSettings({ ...DEFAULT_SETTINGS, ...data.settings });
       }
     });
   }, [id, token]);
@@ -338,21 +349,21 @@ export default function Workshop() {
         <h2 style={{fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase'}}>Global Styles</h2>
         <div style={{marginTop: '2rem'}}>
            <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Border Radius</label>
-           <input type="range" min="0" max="48" value={theme.border_radius} onChange={e => dispatchUpdate(nodes, edges, {...theme, border_radius: parseInt(e.target.value)}, settings)} style={{width: '100%'}}/>
+           <input type="range" min="0" max="48" value={theme.border_radius ?? 0} onChange={e => dispatchUpdate(nodes, edges, {...theme, border_radius: parseInt(e.target.value)}, settings)} style={{width: '100%'}}/>
         </div>
         <div style={{marginTop: '2rem'}}>
            <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Accent Color</label>
-           <input type="color" value={theme.primary_color} onChange={e => dispatchUpdate(nodes, edges, {...theme, primary_color: e.target.value}, settings)} style={{width: '100%', height:'50px', border: 'var(--border-width) solid var(--primary)', cursor: 'pointer', background: 'transparent'}}/>
+           <input type="color" value={theme.primary_color ?? '#000000'} onChange={e => dispatchUpdate(nodes, edges, {...theme, primary_color: e.target.value}, settings)} style={{width: '100%', height:'50px', border: 'var(--border-width) solid var(--primary)', cursor: 'pointer', background: 'transparent'}}/>
         </div>
         <div style={{marginTop: '2rem'}}>
            <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Base Material</label>
-           <input type="color" value={theme.background} onChange={e => dispatchUpdate(nodes, edges, {...theme, background: e.target.value}, settings)} style={{width: '100%', height:'50px', border: 'var(--border-width) solid var(--primary)', cursor: 'pointer', background: 'transparent'}}/>
+           <input type="color" value={theme.background ?? '#ffffff'} onChange={e => dispatchUpdate(nodes, edges, {...theme, background: e.target.value}, settings)} style={{width: '100%', height:'50px', border: 'var(--border-width) solid var(--primary)', cursor: 'pointer', background: 'transparent'}}/>
         </div>
         
         <div style={{ marginTop: '4rem', borderTop: 'var(--border-width) solid var(--primary)', paddingTop: '2rem' }}>
            <h3 style={{fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase'}}>Core Engine</h3>
            <label style={{display:'flex', alignItems:'center', gap:'0.75rem', marginTop: '1.5rem', fontWeight: 900, cursor: 'pointer', fontSize: '0.8rem'}}>
-             <input type="checkbox" checked={settings.gamification} onChange={e => dispatchUpdate(nodes, edges, theme, {gamification: e.target.checked})} style={{width:'24px', height:'24px', cursor: 'pointer'}}/>
+             <input type="checkbox" checked={!!settings.gamification} onChange={e => dispatchUpdate(nodes, edges, theme, {gamification: e.target.checked})} style={{width:'24px', height:'24px', cursor: 'pointer'}}/>
               GAMIFICATION MODE
             </label>
             <button onClick={handleSave} className="btn btn-primary" style={{width: '100%', marginTop: '3rem', fontSize:'1rem', height:'60px'}}>SAVE PROJECT</button>
