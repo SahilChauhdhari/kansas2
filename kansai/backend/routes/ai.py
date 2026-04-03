@@ -21,7 +21,7 @@ async def generate_form_schema(req: AIRequest):
         }
     
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(
             f"Act as a system architect. Generate a JSON graph for a connected form workflow based on this prompt: '{req.prompt}'. "
             f"CRITICAL RULES: "
@@ -31,7 +31,8 @@ async def generate_form_schema(req: AIRequest):
             f"4) Edges represent conditional flows. Schema: id, source (node_id), target (node_id), label (the condition under which this triggers, like 'If Yes' or 'Default Flow'). "
             f"RETURN ONLY VALID JSON."
         )
-        return {"schema": response.text}
+        raw_text = response.text.replace("```json", "").replace("```", "").strip()
+        return {"schema": raw_text}
     except Exception as e:
         return {"error": str(e)}
 
@@ -50,12 +51,13 @@ async def generate_form_theme(req: AIRequest):
         }
         
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(
             f"Act as a master web designer. Given this prompt, generate a JSON object for a Neo-brutalist theme. "
             f"Prompt: '{req.prompt}'. "
             f"Return ONLY valid JSON with keys: primary_color (hex), background (hex), text_color (hex), font_family (string), border_radius (integer)."
         )
-        return {"schema": response.text}
+        raw_text = response.text.replace("```json", "").replace("```", "").strip()
+        return {"schema": raw_text}
     except Exception as e:
         return {"error": str(e)}
