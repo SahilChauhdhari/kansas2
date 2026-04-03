@@ -18,7 +18,7 @@ export default function LoginPage() {
     formData.append('password', password);
 
     try {
-      const res = await fetch('http://localhost:8000/auth/login', {
+      const res = await fetch('http://localhost:8001/auth/login', {
         method: 'POST',
         body: formData,
       });

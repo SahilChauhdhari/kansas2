@@ -17,7 +17,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const registerRes = await fetch('http://localhost:8000/auth/register', {
+      const registerRes = await fetch('http://localhost:8001/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),
@@ -29,7 +29,7 @@ export default function RegisterPage() {
         formData.append('username', username);
         formData.append('password', password);
 
-        const loginRes = await fetch('http://localhost:8000/auth/login', {
+        const loginRes = await fetch('http://localhost:8001/auth/login', {
           method: 'POST',
           body: formData,
         });

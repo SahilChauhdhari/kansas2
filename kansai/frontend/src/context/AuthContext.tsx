@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUser = async (token: string) => {
     try {
-      const res = await fetch('http://localhost:8000/auth/me', {
+      const res = await fetch('http://localhost:8001/auth/me', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

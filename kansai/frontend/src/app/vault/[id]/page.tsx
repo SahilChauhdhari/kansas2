@@ -10,7 +10,7 @@ export default function VaultDashboard() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`http://localhost:8000/vault/form/${id}/responses`)
+    fetch(`http://localhost:8001/vault/form/${id}/responses`)
       .then(res => res.json())
       .then(data => {
          setResponses(data);
@@ -30,12 +30,12 @@ export default function VaultDashboard() {
              </div>
              
              <div style={{ display: 'flex', gap: '1rem' }}>
-                <a href={`http://localhost:8000/vault/form/${id}/export/csv`} target="_blank" rel="noreferrer">
+                <a href={`http://localhost:8001/vault/form/${id}/export/csv`} target="_blank" rel="noreferrer">
                    <button className="btn btn-primary" style={{ background: 'var(--accent-4)', color: 'white' }}>
                       <i className="fas fa-file-csv"></i> Export CSV
                    </button>
                 </a>
-                <a href={`http://localhost:8000/vault/form/${id}/export/json`} target="_blank" rel="noreferrer">
+                <a href={`http://localhost:8001/vault/form/${id}/export/json`} target="_blank" rel="noreferrer">
                    <button className="btn btn-primary" style={{ background: 'var(--accent-3)', color: 'black' }}>
                       <i className="fas fa-file-code"></i> Export JSON
                    </button>
