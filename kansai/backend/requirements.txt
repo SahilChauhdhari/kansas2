@@ -1,8 +1,7 @@
 fastapi
-python-decouple
 uvicorn
 sqlalchemy
-psycopg2-binary
+python-decouple
 python-dotenv
 google-generativeai
 cloudinary
@@ -11,3 +10,6 @@ websockets
 alembic
 pydantic
 pydantic-settings
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt==3.2.0

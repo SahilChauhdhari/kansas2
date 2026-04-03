@@ -1,16 +1,17 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 
-type AnalyticsProps = { params: { id: string } };
-
-export default function SmartAnalytics({ params }: AnalyticsProps) {
+export default function SmartAnalytics() {
+  const { id } = useParams();
   const [metrics, setMetrics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch(`http://localhost:8000/analytics/form/${params.id}/metrics`)
+    if (!id) return;
+    fetch(`http://localhost:8000/analytics/form/${id}/metrics`)
       .then(res => {
          if (!res.ok) throw new Error("Analytics failed");
          return res.json();
@@ -24,7 +25,7 @@ export default function SmartAnalytics({ params }: AnalyticsProps) {
          setMetrics({ views: 42, starts: 15, completions: 7, conversion_rate: 16.6, raw_events: 64 });
          setLoading(false);
       });
-  }, [params.id]);
+  }, [id]);
 
   if (loading) return <div style={{padding:'4rem'}}><h2 style={{fontFamily:'monospace'}}>Compiling Intelligence...</h2></div>;
 
@@ -35,10 +36,10 @@ export default function SmartAnalytics({ params }: AnalyticsProps) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
              <div>
                <h1 style={{ fontSize: '3rem', margin: 0, fontWeight: 900 }}>Smart Analytics</h1>
-               <p style={{ marginTop: '0.5rem', opacity: 0.8 }}>Real-time telemetry for Form ID: {params.id}</p>
+               <p style={{ marginTop: '0.5rem', opacity: 0.8 }}>Real-time telemetry for Form ID: {id}</p>
              </div>
              
-             <Link href={`/vault/${params.id}`}>
+             <Link href={`/vault/${id}`}>
                <button className="btn btn-secondary" style={{ background: 'white', color: 'black' }}>
                   <i className="fas fa-database"></i> Go to Vault
                </button>

@@ -21,13 +21,14 @@ async def generate_form_schema(req: AIRequest):
         }
     
     try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         response = model.generate_content(
             f"Act as a system architect. Generate a JSON graph for a connected form workflow based on this prompt: '{req.prompt}'. "
             f"CRITICAL RULES: "
             f"1) You MUST return a JSON object containing two arrays: 'nodes' and 'edges'. "
             f"2) You MUST include AT LEAST one conditional branching rule connecting diverging logic. "
-            f"3) Nodes represent form fields. Schema: id, position (x,y map spacing them out horizontally), data (label, type (short_answer, long_answer, select, email), options (if select), is_required). "
+            f"3) Nodes represent form fields. Schema: id, position (x,y map spacing them out horizontally), data (label, type, options (if applicable), is_required). "
+            f"Valid Types: short, long, choice, rating, emoji, email, calendar, file, audio, signature, image_mcq. "
             f"4) Edges represent conditional flows. Schema: id, source (node_id), target (node_id), label (the condition under which this triggers, like 'If Yes' or 'Default Flow'). "
             f"RETURN ONLY VALID JSON."
         )
@@ -51,7 +52,7 @@ async def generate_form_theme(req: AIRequest):
         }
         
     try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         response = model.generate_content(
             f"Act as a master web designer. Given this prompt, generate a JSON object for a Neo-brutalist theme. "
             f"Prompt: '{req.prompt}'. "

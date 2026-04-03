@@ -4,20 +4,19 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime, timedelta
-from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy import Enum
 
 Base = declarative_base()
 
 # Enums for field types and validation
-FieldType = ENUM('text', 'textarea', 'email', 'password', 'number',
+FieldTypeValues = ('text', 'textarea', 'email', 'password', 'number',
                   'select', 'radio', 'checkbox', 'date', 'date_range',
                   'file', 'multi_select', 'dropdown', 'slider', 'signature',
-                  'address', 'phone', 'currency', 'percentage', 'custom',
-                  name='field_type')
+                  'address', 'phone', 'currency', 'percentage', 'custom')
 
-FormStatus = ENUM('draft', 'active', 'archived', 'published', name='form_status')
+FormStatusValues = ('draft', 'active', 'archived', 'published')
 
-FormPermission = ENUM('owner', 'editor', 'viewer', 'readonly', name='form_permission')
+FormPermissionValues = ('owner', 'editor', 'viewer', 'readonly')
 
 class User(Base):
     """User model for admin authentication."""
@@ -35,7 +34,7 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    forms = relationship("Form", back_populates="owner")
+    forms = relationship("Form", foreign_keys="[Form.created_by]", back_populates="owner")
 
     __table_args__ = (
         Index('ix_users_email', 'email'),
@@ -50,7 +49,7 @@ class Form(Base):
     slug = Column(String(100), unique=True, index=True, nullable=False)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    status = Column(FormStatus, default='draft', index=True)
+    status = Column(Enum(*FormStatusValues, name='form_status'), default='draft', index=True)
     theme_id = Column(Integer, ForeignKey('themes.id'), nullable=True)
     is_published = Column(Boolean, default=False)
     allow_anonymous = Column(Boolean, default=True)
@@ -86,7 +85,7 @@ class Field(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     form_id = Column(Integer, ForeignKey('forms.id'), nullable=False)
-    field_type = Column(FieldType, nullable=False)
+    field_type = Column(Enum(*FieldTypeValues, name='field_type'), nullable=False)
     field_name = Column(String(100), nullable=True)
     field_label = Column(String(255), nullable=False)
     placeholder = Column(String(255), nullable=True)
@@ -118,7 +117,7 @@ class Response(Base):
     submission_data = Column(JSON, nullable=False)
     is_valid = Column(Boolean, default=True)
     validation_errors = Column(JSON, nullable=True)
-    submission_status = Column(ENUM('pending', 'submitted', 'rejected', name='submission_status'), default='pending')
+    submission_status = Column(Enum('pending', 'submitted', 'rejected', name='submission_status'), default='pending')
     submitted_by = Column(Integer, ForeignKey('users.id'), nullable=True)
     submitted_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     ip_address = Column(String(45), nullable=True)
@@ -167,9 +166,9 @@ class Condition(Base):
     form_id = Column(Integer, ForeignKey('forms.id'), nullable=False)
     trigger_field = Column(String(100), nullable=False)
     trigger_value = Column(String(255), nullable=False)
-    trigger_operator = Column(ENUM('equals', 'not_equals', 'contains', 'does_not_contain', 'greater_than', 'less_than', 'between', name='trigger_operator'), nullable=False)
+    trigger_operator = Column(Enum('equals', 'not_equals', 'contains', 'does_not_contain', 'greater_than', 'less_than', 'between', name='trigger_operator'), nullable=False)
     target_field = Column(Integer, ForeignKey('fields.id'), nullable=True)
-    target_action = Column(ENUM('hide', 'show', 'enable', 'disable', 'validate', name='target_action'), nullable=False)
+    target_action = Column(Enum('hide', 'show', 'enable', 'disable', 'validate', name='target_action'), nullable=False)
     priority = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 
@@ -228,7 +227,7 @@ class FileUpload(Base):
     file_url = Column(String(500), nullable=False)
     file_type = Column(String(100), nullable=False)
     file_size = Column(Integer, nullable=False)
-    file_upload_type = Column(ENUM('image', 'video', 'file', 'signature', name='file_upload_type'), nullable=False)
+    file_upload_type = Column(Enum('image', 'video', 'file', 'signature', name='file_upload_type'), nullable=False)
     public_url = Column(String(500), nullable=True)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 

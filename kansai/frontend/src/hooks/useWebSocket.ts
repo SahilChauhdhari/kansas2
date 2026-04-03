@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 export type WSAction = {
-  type: "SCHEMA_UPDATE" | "UNDO" | "REDO" | "CURSOR_MOVE" | "REDO_ACTION" | "UNDO_ACTION" | "USER_DISCONNECTED";
+  type: "SCHEMA_UPDATE" | "UNDO" | "REDO" | "CURSOR_MOVE" | "REDO_ACTION" | "UNDO_ACTION" | "USER_DISCONNECTED" | "USER_CURSOR";
   [key: string]: any;
 };
 
@@ -20,8 +20,8 @@ export function useWebSocket(url: string) {
       try {
         const data = JSON.parse(event.data);
         setLastMessage(data);
-      } catch (err) {
-        console.error("Message parse error", err);
+      } catch (e) {
+        console.error(e);
       }
     };
 

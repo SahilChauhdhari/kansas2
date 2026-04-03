@@ -12,7 +12,6 @@ def fetch_form(slug: str, db: Session = Depends(get_db)):
     if not form:
         raise HTTPException(status_code=404, detail="Form not found")
         
-    # Serialize to ensure conditions and theme are attached for the dynamic Stage runner
     return {
         "id": form.id,
         "title": form.title,
@@ -28,11 +27,6 @@ def submit_form(slug: str, response_data: dict, db: Session = Depends(get_db)):
     if not form:
         raise HTTPException(status_code=404, detail="Form not found")
     
-    # Run simple server-side validation check
-    # In a full implementation, we'd iterate through form.fields and check types/required
-    if not response_data:
-        raise HTTPException(status_code=400, detail="Invalid submission data")
-        
     new_response = Response(
         form_id=form.id,
         submission_data=response_data,

@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ThemeSwitcher from './components/ThemeSwitcher';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -13,6 +15,8 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const { user, logout } = useAuth();
 
   // Keyboard shortcut to open modal
   useEffect(() => {
@@ -38,10 +42,18 @@ export default function Home() {
               </div>
               <ul className="nav-links">
                   <li><a href="#features">Features</a></li>
-                  <li><a href="#benefits">Benefits</a></li>
                   <li><Link href="/workshop">Workshop</Link></li>
+                  <li><Link href="/analytics">Analytics</Link></li>
+                  {user ? (
+                    <li><button onClick={logout} className="nav-link-btn">Logout ({user.username})</button></li>
+                  ) : (
+                    <li><Link href="/login">Login</Link></li>
+                  )}
               </ul>
-              <button className="nav-cta" onClick={() => setModalOpen(true)}>Get Started</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <ThemeSwitcher />
+                <button className="nav-cta" onClick={() => setModalOpen(true)}>Get Started</button>
+              </div>
           </div>
       </nav>
 
@@ -58,12 +70,12 @@ export default function Home() {
                   </div>
               </div>
               <div className="hero-illustration">
-                  <div className="shape shape-1"></div>
-                  <div className="shape shape-2"></div>
-                  <div className="shape shape-3"></div>
-                  <div className="floating-card">
-                      <div className="card-item">📋 24 Forms</div>
-                      <div className="card-item">📊 2,048 Responses</div>
+                  <div className="shape shape-1" style={{background: 'var(--accent)'}}></div>
+                  <div className="shape shape-2" style={{background: 'var(--accent-2)'}}></div>
+                  <div className="shape shape-3" style={{background: 'var(--accent-3)'}}></div>
+                  <div className="floating-card" style={{background: 'var(--card-bg)', border: 'var(--border-width) solid var(--primary)', boxShadow: 'var(--card-shadow)', backdropFilter: 'var(--blur)'}}>
+                      <div className="card-item" style={{borderBottom: '2px solid var(--primary)'}}>📋 24 Forms</div>
+                      <div className="card-item" style={{borderBottom: 'none'}}>📊 2,048 Responses</div>
                   </div>
               </div>
           </div>

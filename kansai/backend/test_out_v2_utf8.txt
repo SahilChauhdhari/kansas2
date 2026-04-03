@@ -1,0 +1,211 @@
+﻿.\venv\Scripts\python.exe 
+: (trapped) error reading 
+bcrypt version
+At line:1 char:1
++ 
+.\venv\Scripts\python.exe 
+test_register.py > 
+test_out_v2.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: ((  
+  trapped) error readin   
+ g bcrypt version:Stri    
+ng) [], RemoteExcepti    
+on
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+Traceback (most recent 
+call last):
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\handlers\bcrypt.py", 
+line 620, in 
+_load_backend_mixin
+    version = _bcrypt.__ab
+out__.__version__
+              
+^^^^^^^^^^^^^^^^^
+AttributeError: module 
+'bcrypt' has no attribute 
+'__about__'
+Traceback (most recent 
+call last):
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\tes
+t_register.py", line 28, 
+in <module>
+    hashed_password = get_
+password_hash(password)
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\rou
+tes\auth.py", line 44, in 
+get_password_hash
+    return 
+pwd_context.hash(password)
+           
+~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\context.py", line 2258, 
+in hash
+    return 
+record.hash(secret, 
+**kwds)
+           ~~~~~~~~~~~^^^^
+^^^^^^^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\utils\handlers.py", 
+line 779, in hash
+    self.checksum = self._
+calc_checksum(secret)
+                    ~~~~~~
+~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\handlers\bcrypt.py", 
+line 591, in 
+_calc_checksum
+    self._stub_requires_ba
+ckend()
+    ~~~~~~~~~~~~~~~~~~~~~~
+~~~~~^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\utils\handlers.py", 
+line 2254, in 
+_stub_requires_backend
+    cls.set_backend()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\utils\handlers.py", 
+line 2156, in set_backend
+    return 
+owner.set_backend(name, 
+dryrun=dryrun)
+           ~~~~~~~~~~~~~~~
+~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\utils\handlers.py", 
+line 2163, in set_backend
+    return 
+cls.set_backend(name, 
+dryrun=dryrun)
+           ~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\utils\handlers.py", 
+line 2188, in set_backend
+    
+cls._set_backend(name, 
+dryrun)
+    ~~~~~~~~~~~~~~~~^^^^^^
+^^^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\utils\handlers.py", 
+line 2311, in _set_backend
+    super(SubclassBackendM
+ixin, 
+cls)._set_backend(name, 
+dryrun)
+    ~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~^^^
+^^^^^^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\utils\handlers.py", 
+line 2224, in _set_backend
+    ok = loader(**kwds)
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\handlers\bcrypt.py", 
+line 626, in 
+_load_backend_mixin
+    return mixin_cls._fina
+lize_backend_mixin(name, 
+dryrun)
+           ~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~^^^^^^^^
+^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\handlers\bcrypt.py", 
+line 421, in 
+_finalize_backend_mixin
+    if 
+detect_wrap_bug(IDENT_2A):
+       
+~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\handlers\bcrypt.py", 
+line 380, in 
+detect_wrap_bug
+    if verify(secret, 
+bug_hash):
+       
+~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\utils\handlers.py", 
+line 792, in verify
+    return consteq(self._c
+alc_checksum(secret), chk)
+                   ~~~~~~~
+~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\passli
+b\handlers\bcrypt.py", 
+line 655, in 
+_calc_checksum
+    hash = 
+_bcrypt.hashpw(secret, 
+config)
+ValueError: password 
+cannot be longer than 72 
+bytes, truncate manually 
+if necessary (e.g. 
+my_password[:72])
+Testing user registration logic...
+Error during user creation: password cannot be longer than 72 bytes, truncate manually if necessary (e.g. my_password[:72])

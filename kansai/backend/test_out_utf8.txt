@@ -1,0 +1,311 @@
+﻿.\venv\Scripts\python.exe 
+: Traceback (most recent 
+call last):
+At line:1 char:1
++ 
+.\venv\Scripts\python.exe 
+test_register.py > 
+test_out.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (T  
+  raceback (most recent   
+  call last)::String)     
+[], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\relationships.py"
+, line 2434, in 
+_determine_joins
+    self.primaryjoin = 
+join_condition(
+                       
+~~~~~~~~~~~~~~^
+        self.parent_persis
+t_selectable,
+        ^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
+    ...<2 lines>...
+        consider_as_foreig
+n_keys=consider_as_foreign
+_keys,
+        ^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+    )
+    ^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\sql\util.py", line 
+121, in join_condition
+    return 
+Join._join_condition(
+           
+~~~~~~~~~~~~~~~~~~~~^
+        a,
+        ^^
+    ...<2 lines>...
+        consider_as_foreig
+n_keys=consider_as_foreign
+_keys,
+        ^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+    )
+    ^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\sql\selectable.py", 
+line 1441, in 
+_join_condition
+    cls._joincond_trim_con
+straints(
+    ~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~^
+        a, b, 
+constraints, 
+consider_as_foreign_keys
+        ^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\sql\selectable.py", 
+line 1586, in 
+_joincond_trim_constraints
+    raise exc.AmbiguousFor
+eignKeysError(
+    ...<5 lines>...
+    )
+sqlalchemy.exc.AmbiguousFo
+reignKeysError: Can't 
+determine join between 
+'users' and 'forms'; 
+tables have more than one 
+foreign key constraint 
+relationship between 
+them. Please specify the 
+'onclause' of this join 
+explicitly.
+
+The above exception was 
+the direct cause of the 
+following exception:
+
+Traceback (most recent 
+call last):
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\tes
+t_register.py", line 22, 
+in <module>
+    db_user = db.query(Use
+r).filter(User.username 
+== username).first()
+              
+~~~~~~~~^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\session.py", 
+line 2941, in query
+    return 
+self._query_cls(entities, 
+self, **kwargs)
+           ~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\query.py", line 
+276, in __init__
+    self._set_entities(ent
+ities)
+    ~~~~~~~~~~~~~~~~~~^^^^
+^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\query.py", line 
+289, in _set_entities
+    coercions.expect(
+    ~~~~~~~~~~~~~~~~^
+        
+roles.ColumnsClauseRole,
+        
+^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        post_inspect=True,
+        ^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\sql\coercions.py", 
+line 389, in expect
+    insp._post_inspect
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\util\langhelpers.py",
+ line 1235, in __get__
+    obj.__dict__[self.__na
+me__] = result = 
+self.fget(obj)
+                          
+                 
+~~~~~~~~~^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\mapper.py", line 
+2733, in _post_inspect
+    
+self._check_configure()
+    
+~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\mapper.py", line 
+2410, in _check_configure
+    _configure_registries(
+{self.registry}, 
+cascade=True)
+    ~~~~~~~~~~~~~~~~~~~~~^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\mapper.py", line 
+4227, in 
+_configure_registries
+    _do_configure_registri
+es(registries, cascade)
+    ~~~~~~~~~~~~~~~~~~~~~~
+~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\mapper.py", line 
+4268, in 
+_do_configure_registries
+    mapper._post_configure
+_properties()
+    ~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\mapper.py", line 
+2427, in 
+_post_configure_properties
+    prop.init()
+    ~~~~~~~~~^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\interfaces.py", 
+line 595, in init
+    self.do_init()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\relationships.py"
+, line 1657, in do_init
+    self._setup_join_condi
+tions()
+    ~~~~~~~~~~~~~~~~~~~~~~
+~~~~~^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\relationships.py"
+, line 1895, in 
+_setup_join_conditions
+    self._join_condition 
+= jc = JoinCondition(
+                          
+      ~~~~~~~~~~~~~^
+        parent_persist_sel
+ectable=self.parent.persis
+t_selectable,
+        ^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
+    ...<14 lines>...
+        can_be_synced_fn=s
+elf._columns_are_mapped,
+        ^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\relationships.py"
+, line 2321, in __init__
+    
+self._determine_joins()
+    
+~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Sahil R C
+haudhari\Documents\GitHub\
+kansas2\kansai\backend\ven
+v\Lib\site-packages\sqlalc
+hemy\orm\relationships.py"
+, line 2478, in 
+_determine_joins
+    raise sa_exc.Ambiguous
+ForeignKeysError(
+    ...<7 lines>...
+    ) from afe
+sqlalchemy.exc.AmbiguousFo
+reignKeysError: Could not 
+determine join condition 
+between parent/child 
+tables on relationship 
+User.forms - there are 
+multiple foreign key 
+paths linking the tables. 
+ Specify the 
+'foreign_keys' argument, 
+providing a list of those 
+columns which should be 
+counted as containing a 
+foreign key reference to 
+the parent table.
+Testing user registration logic...
+Error during user creation: Could not determine join condition between parent/child tables on relationship User.forms - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.

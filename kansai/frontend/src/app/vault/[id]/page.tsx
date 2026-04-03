@@ -1,22 +1,23 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 
-type VaultProps = { params: { id: string } };
-
-export default function VaultDashboard({ params }: VaultProps) {
+export default function VaultDashboard() {
+  const { id } = useParams();
   const [responses, setResponses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/vault/form/${params.id}/responses`)
+    if (!id) return;
+    fetch(`http://localhost:8000/vault/form/${id}/responses`)
       .then(res => res.json())
       .then(data => {
          setResponses(data);
          setLoading(false);
       })
       .catch(err => console.error(err));
-  }, [params.id]);
+  }, [id]);
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', padding: '4rem' }}>
@@ -25,16 +26,16 @@ export default function VaultDashboard({ params }: VaultProps) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
              <div>
                <h1 style={{ fontSize: '3rem', margin: 0 }}>Response Vault</h1>
-               <p style={{ marginTop: '0.5rem' }}>Secure Dashboard for Form ID: {params.id}</p>
+               <p style={{ marginTop: '0.5rem' }}>Secure Dashboard for Form ID: {id}</p>
              </div>
              
              <div style={{ display: 'flex', gap: '1rem' }}>
-                <a href={`http://localhost:8000/vault/form/${params.id}/export/csv`} target="_blank" rel="noreferrer">
+                <a href={`http://localhost:8000/vault/form/${id}/export/csv`} target="_blank" rel="noreferrer">
                    <button className="btn btn-primary" style={{ background: 'var(--accent-4)', color: 'white' }}>
                       <i className="fas fa-file-csv"></i> Export CSV
                    </button>
                 </a>
-                <a href={`http://localhost:8000/vault/form/${params.id}/export/json`} target="_blank" rel="noreferrer">
+                <a href={`http://localhost:8000/vault/form/${id}/export/json`} target="_blank" rel="noreferrer">
                    <button className="btn btn-primary" style={{ background: 'var(--accent-3)', color: 'black' }}>
                       <i className="fas fa-file-code"></i> Export JSON
                    </button>

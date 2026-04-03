@@ -16,7 +16,7 @@ app.add_middleware(
 )
 
 # Import and include routes
-from routes import workshop, stage, ai, vault, analytics
+from routes import workshop, stage, ai, vault, analytics, auth
 from websocket.collaboration import router as ws_router
 
 app.include_router(workshop.router)
@@ -24,6 +24,7 @@ app.include_router(stage.router)
 app.include_router(ai.router)
 app.include_router(vault.router)
 app.include_router(analytics.router)
+app.include_router(auth.router)
 app.include_router(ws_router)
 
 @app.get("/")

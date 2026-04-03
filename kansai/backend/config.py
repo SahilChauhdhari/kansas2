@@ -4,8 +4,21 @@ from typing import Any
 from pathlib import Path
 from dotenv import load_dotenv
 from decouple import config, Csv
+from sqlalchemy import create_engine
 
 load_dotenv()
+
+# Pre-compute values so they are easy to use in logic
+_db_url = os.getenv("DATABASE_URL", "sqlite:///./formflow.db")
+_db_pool_size = int(os.getenv("DATABASE_POOL_SIZE", "5"))
+_db_max_overflow = int(os.getenv("DATABASE_MAX_OVERFLOW", "20"))
+
+_engine_kwargs = {}
+if _db_url.startswith("sqlite"):
+    _engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    _engine_kwargs["pool_size"] = _db_pool_size
+    _engine_kwargs["max_overflow"] = _db_max_overflow
 
 class Config:
     """Application configuration with environment variables."""
@@ -15,9 +28,10 @@ class Config:
     DEBUG = ENV != "production"
 
     # Database
-    DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/formflow")
-    DATABASE_POOL_SIZE = int(os.getenv("DATABASE_POOL_SIZE", "5"))
-    DATABASE_MAX_OVERFLOW = int(os.getenv("DATABASE_MAX_OVERFLOW", "20"))
+    DATABASE_URL = _db_url
+    DATABASE_POOL_SIZE = _db_pool_size
+    DATABASE_MAX_OVERFLOW = _db_max_overflow
+    ENGINE = create_engine(_db_url, **_engine_kwargs)
 
     # Cloudinary
     CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME", "your-cloud-name")
@@ -35,9 +49,9 @@ class Config:
     WEBSOCKET_RECONNECT_DELAY = int(os.getenv("WEBSOCKET_RECONNECT_DELAY", "5000"))
 
     # Security
-    SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwt-secret-key")
-    ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+    SECRET_KEY = os.getenv("SECRET_KEY", "9a2b5c7d8e1f0a3b6c9d2e5f8a1b4c7d0e3f6a9b2c5d8e1f0a3b6c9d2e5f8a1b")
+    ALGORITHM = os.getenv("ALGORITHM", "HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "43200"))
 
     # File uploads
     FILE_UPLOAD_MAX_SIZE = int(os.getenv("FILE_UPLOAD_MAX_SIZE", "10485760"))  # 10MB
