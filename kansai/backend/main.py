@@ -9,11 +9,8 @@ app = FastAPI(title="FormFlow API", description="Form Builder Backend", version=
 # CORS setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://kansas2-mtqe6ki7a-sahils-projects-ab5343e9.vercel.app"
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

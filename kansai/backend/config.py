@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from decouple import config, Csv
 from sqlalchemy import create_engine
 
-load_dotenv()
+load_dotenv(override=True)
 
 # Pre-compute values so they are easy to use in logic
 _db_url = os.getenv("DATABASE_URL", "sqlite:///./formflow.db")

@@ -39,6 +39,21 @@ export default function LoginPage() {
         {error && <div className="auth-error">{error}</div>}
         
         <form onSubmit={handleSubmit}>
+          
+          <div style={{ marginBottom: "1.5rem", display: "flex", justifyContent: "flex-end" }}>
+            <button 
+              type="button" 
+              onClick={() => { setUsername('test'); setPassword('test'); }}
+              style={{ 
+                background: "#000", color: "#fff", padding: "0.5rem 1rem", 
+                border: "2px solid #000", cursor: "pointer", fontWeight: "bold",
+                boxShadow: "4px 4px 0 #ff006e"
+              }}
+            >
+              Autofill Test Credentials
+            </button>
+          </div>
+
           <div className="form-group">
             <label>Username</label>
             <input 
