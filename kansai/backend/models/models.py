@@ -42,11 +42,6 @@ class User(Base):
     forms = relationship("Form", foreign_keys="Form.created_by", back_populates="owner")
     shared_forms = relationship("Form", secondary=form_collaborators, back_populates="collaborators")
 
-    __table_args__ = (
-        Index('ix_users_email', 'email'),
-        Index('ix_users_username', 'username'),
-    )
-
 class Form(Base):
     """Main form model with schema flexibility."""
     __tablename__ = 'forms'
@@ -82,7 +77,6 @@ class Form(Base):
     analytics = relationship("Analytics", back_populates="form", cascade="all, delete-orphan")
 
     __table_args__ = (
-        Index('ix_forms_slug', 'slug'),
         CheckConstraint("status IN ('draft', 'active', 'archived', 'published')"),
     )
 

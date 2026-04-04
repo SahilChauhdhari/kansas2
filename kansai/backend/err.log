@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import traceback, sys; sys.stderr = open('err.log', 'w', encoding='utf-8'); from database.database import Base, engine; Base.metadata.create_all(bind=engine)
+                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ImportError: cannot import name 'Base' from 'database.database' (C:\Users\Sahil R Chaudhari\Documents\GitHub\kansas2\kansai\backend\database\database.py)
