@@ -179,10 +179,10 @@ export default function PublicForm() {
   if (submitted) {
     return (
       <div className="stage-bg" style={customStyles}>
-        <div className="form-container success">
-          <h2>Success!</h2>
-          <p>Your response has been recorded accurately.</p>
-          <button onClick={() => window.location.reload()} className="btn btn-primary">Submit Another</button>
+        <div className="form-container success" style={{ textAlign: 'center' }}>
+          <h2 style={{ fontSize: '3.5rem', marginBottom: '1rem', marginTop: '0' }}>Success!</h2>
+          <p style={{ fontSize: '1.2rem', color: 'var(--text-light)', marginBottom: '2rem' }}>Your response has been recorded accurately.</p>
+          <button onClick={() => window.location.reload()} className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>Submit Another</button>
         </div>
       </div>
     );
@@ -277,6 +277,7 @@ export default function PublicForm() {
           padding: 4rem 2rem;
           display: flex;
           justify-content: center;
+          align-items: center;
         }
         .form-container {
           width: 100%;

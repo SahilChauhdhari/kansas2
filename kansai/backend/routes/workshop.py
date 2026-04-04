@@ -105,6 +105,18 @@ def update_form(form_id: int, form_data: dict, db: Session = Depends(get_db), to
     db.refresh(form)
     return form
 
+@router.delete("/forms/{form_id}")
+def delete_form(form_id: int, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+    current_user = get_current_user(db, token)
+    form = db.query(Form).filter(Form.id == form_id, Form.created_by == current_user.id).first()
+    
+    if not form:
+        raise HTTPException(status_code=404, detail="Form not found")
+        
+    db.delete(form)
+    db.commit()
+    return {"status": "deleted", "id": form_id}
+
 @router.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     # Cloudinary Integration
