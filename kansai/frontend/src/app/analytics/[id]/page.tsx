@@ -13,7 +13,7 @@ export default function FormAnalytics() {
   useEffect(() => {
     if (!id) return;
     
-    const url = `http://localhost:8001/analytics/form/${id}/metrics`;
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/analytics/form/${id}/metrics`;
     fetch(url)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);

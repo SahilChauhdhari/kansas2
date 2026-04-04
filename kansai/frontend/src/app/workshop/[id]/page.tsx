@@ -59,7 +59,7 @@ export default function Workshop() {
 
   useEffect(() => {
     if (!token || !id) return;
-    fetch(`http://localhost:8001/workshop/forms/${id}`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/workshop/forms/${id}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => res.ok ? res.json() : null)
@@ -171,7 +171,7 @@ export default function Workshop() {
 
   const handleAIGenerate = async () => {
     try {
-      const res = await fetch('http://localhost:8001/ai/generate-form', {
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/ai/generate-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: aiPrompt })
@@ -190,7 +190,7 @@ export default function Workshop() {
   const handleSave = async () => {
     if (!token || !id) return;
     try {
-      const res = await fetch(`http://localhost:8001/workshop/forms/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/workshop/forms/${id}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
