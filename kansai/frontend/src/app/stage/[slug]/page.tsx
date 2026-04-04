@@ -24,10 +24,14 @@ export default function PublicForm() {
           
           // Determine the Root Node
           if (data.fields && data.fields.length > 0) {
-            // A node without incoming edges, or just the first node
-            const targets = new Set((data.edges || []).map((e: any) => e.target));
-            const root = data.fields.find((n: any) => !targets.has(n.id)) || data.fields[0];
-            if (root) setVisibleNodes([root.id]);
+            if (!data.edges || data.edges.length === 0) {
+               // No edges? Render all fields linearly.
+               setVisibleNodes(data.fields.map((f: any) => f.id));
+            } else {
+               const targets = new Set((data.edges || []).map((e: any) => e.target));
+               const root = data.fields.find((n: any) => !targets.has(n.id)) || data.fields[0];
+               if (root) setVisibleNodes([root.id]);
+            }
           }
 
           // Log view event
@@ -164,13 +168,13 @@ export default function PublicForm() {
   if (!form) return <div className="error">Form not found</div>;
 
   // Custom Theme Application
-  const customStyles = {
-      '--primary': form.settings?.theme?.primary_color || 'var(--primary)',
-      '--bg': form.settings?.theme?.background || 'var(--bg)',
-      '--text-dark': form.settings?.theme?.text_color || 'var(--text-dark)',
-      '--font-family': form.settings?.theme?.font_family || 'var(--font-family)',
-      '--border-radius': `${form.settings?.theme?.border_radius || 0}px`
-  } as React.CSSProperties;
+  // Custom Theme Application
+  const customStyles: any = {};
+  if (form.settings?.theme?.primary_color) customStyles['--primary'] = form.settings.theme.primary_color;
+  if (form.settings?.theme?.background) customStyles['--bg'] = form.settings.theme.background;
+  if (form.settings?.theme?.text_color) customStyles['--text-dark'] = form.settings.theme.text_color;
+  if (form.settings?.theme?.font_family) customStyles['--font-family'] = form.settings.theme.font_family;
+  if (form.settings?.theme?.border_radius !== undefined) customStyles['--border-radius'] = `${form.settings.theme.border_radius}px`;
 
   if (submitted) {
     return (
@@ -190,11 +194,11 @@ export default function PublicForm() {
 
     switch (type) {
         case 'long_answer':
-            return <textarea value={value} onChange={(e) => handleChange(field.id, e.target.value)} required={field.data.is_required} />;
+            return <textarea value={value} onChange={(e) => handleChange(field.id, e.target.value)} required={field.data.is_required} className="stage-input" />;
         case 'select':
         case 'dropdown':
             return (
-                <select value={value} onChange={(e) => handleChange(field.id, e.target.value)} required={field.data.is_required}>
+                <select value={value} onChange={(e) => handleChange(field.id, e.target.value)} required={field.data.is_required} className="stage-input">
                     <option value="">Select an option...</option>
                     {(options || []).map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
@@ -211,17 +215,34 @@ export default function PublicForm() {
                 </div>
             )
         case 'number':
-            return <input type="number" min={min} max={max} value={value} onChange={(e) => handleChange(field.id, e.target.value)} required={field.data.is_required} />;
+            return <input type="number" min={min} max={max} value={value} onChange={(e) => handleChange(field.id, e.target.value)} required={field.data.is_required} className="stage-input" />;
         case 'date_range':
-            return <input type="date" value={value} onChange={(e) => handleChange(field.id, e.target.value)} required={field.data.is_required} />;
+            return <input type="date" value={value} onChange={(e) => handleChange(field.id, e.target.value)} required={field.data.is_required} className="stage-input" />;
+        case 'file':
+            return <input type="file" onChange={(e) => handleChange(field.id, e.target.value)} required={field.data.is_required} className="stage-input file-input" />;
         default:
-            return <input type="text" value={value} onChange={(e) => handleChange(field.id, e.target.value)} required={field.data.is_required} />;
+            return <input type="text" value={value} onChange={(e) => handleChange(field.id, e.target.value)} required={field.data.is_required} className="stage-input" />;
     }
   }
+
+  const answeredCount = visibleNodes.filter((id: string) => {
+    const val = formData[id];
+    return val !== undefined && val !== null && val !== '';
+  }).length;
+  const progressPercentage = visibleNodes.length > 0 ? Math.round((answeredCount / visibleNodes.length) * 100) : 0;
 
   return (
     <div className="stage-bg" style={customStyles}>
       <div className="form-container">
+        
+        {/* Gamification Progress Bar */}
+        <div className="progress-wrapper">
+           <div className="progress-bar" style={{ width: `${progressPercentage}%` }}></div>
+        </div>
+        <div style={{textAlign: 'right', fontSize: '0.85rem', fontWeight: 900, marginBottom: '2rem', color: 'var(--primary)'}}>
+            {progressPercentage}% COMPLETED
+        </div>
+
         <h1>{form.title}</h1>
         <p className="description">{form.description}</p>
         
@@ -282,6 +303,33 @@ export default function PublicForm() {
         }
         .stacked-enter {
             animation: slideDown 0.3s ease forwards;
+        }
+        .progress-wrapper {
+            width: 100%;
+            height: 12px;
+            background: rgba(0,0,0,0.05);
+            border: 2px solid var(--primary, #000);
+            border-radius: var(--border-radius, 0px);
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary, #000);
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .stage-input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--primary, #000);
+            background: transparent;
+            font-size: 1rem;
+            border-radius: var(--border-radius, 0px);
+            font-family: inherit;
+        }
+        .file-input {
+            padding: 0.5rem;
+            cursor: pointer;
         }
       `}</style>
     </div>
