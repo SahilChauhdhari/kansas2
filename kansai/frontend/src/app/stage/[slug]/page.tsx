@@ -15,13 +15,13 @@ export default function PublicForm() {
     async function init() {
       if (!slug) return;
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/stage/form/${slug}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/stage/form/${slug}`);
         if (res.ok) {
           const data = await res.json();
           setForm(data);
           
           // Log view event
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/form/${data.id}/event`, {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/analytics/form/${data.id}/event`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ event_type: 'view', metadata: { source: 'web' } })
@@ -42,7 +42,7 @@ export default function PublicForm() {
 
   const handleStart = () => {
     if (Object.keys(formData).length === 0 && form?.id) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/form/${form.id}/event`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/analytics/form/${form.id}/event`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ event_type: 'start', metadata: { timestamp: new Date() } })
@@ -53,7 +53,7 @@ export default function PublicForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/stage/form/${slug}/submit`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/stage/form/${slug}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -61,7 +61,7 @@ export default function PublicForm() {
       if (res.ok) {
         setSubmitted(true);
         // Log complete event
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/form/${form.id}/event`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/analytics/form/${form.id}/event`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ event_type: 'complete', metadata: { duration: 'mocked' } })

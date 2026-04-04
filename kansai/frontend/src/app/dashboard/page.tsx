@@ -20,7 +20,7 @@ export default function Dashboard() {
   const fetchForms = useCallback(async () => {
     if (!token) return;
     try {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/workshop/forms', {
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001') + '/workshop/forms', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -41,7 +41,7 @@ export default function Dashboard() {
   const handleCreateForm = async () => {
     if (!token) return;
     try {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/workshop/forms', {
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001') + '/workshop/forms', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

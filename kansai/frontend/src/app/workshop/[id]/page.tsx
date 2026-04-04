@@ -60,7 +60,7 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
 
   useEffect(() => {
     if (!token || !id) return;
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/workshop/forms/${id}`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/workshop/forms/${id}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => res.ok ? res.json() : null)
@@ -172,7 +172,7 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
 
   const handleAIGenerate = async () => {
     try {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/ai/generate-form', {
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001') + '/ai/generate-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: aiPrompt })
@@ -191,7 +191,7 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
   const handleSave = async () => {
     if (!token || !id) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/workshop/forms/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/workshop/forms/${id}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
