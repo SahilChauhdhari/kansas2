@@ -6,50 +6,34 @@ export default function ThemeSwitcher() {
 
   return (
     <div className="theme-switcher">
-      <button 
-        className={theme === 'neo-brutalism' ? 'active' : ''} 
-        onClick={() => setTheme('neo-brutalism')}
-        title="Neo-Brutalism"
+      <select 
+        value={theme} 
+        onChange={(e) => setTheme(e.target.value as 'neo-brutalism' | 'liquid-glass' | 'minimalist')}
+        className="theme-select"
       >
-        🎨
-      </button>
-      <button 
-        className={theme === 'liquid-glass' ? 'active' : ''} 
-        onClick={() => setTheme('liquid-glass')}
-        title="Liquid Glass"
-      >
-        🧪
-      </button>
-      <button 
-        className={theme === 'minimalist' ? 'active' : ''} 
-        onClick={() => setTheme('minimalist')}
-        title="Minimalist"
-      >
-        ⚪
-      </button>
+        <option value="neo-brutalism">Neo-Brutalism</option>
+        <option value="liquid-glass">Liquid Glass</option>
+        <option value="minimalist">Minimalist</option>
+      </select>
 
       <style jsx>{`
         .theme-switcher {
           display: flex;
-          gap: 0.5rem;
-          background: var(--secondary);
-          padding: 0.25rem;
+          align-items: center;
+        }
+        .theme-select {
+          padding: 0.5rem 1rem;
+          font-family: inherit;
+          font-weight: bold;
+          font-size: 0.9rem;
+          background: var(--bg);
+          color: var(--text);
           border: var(--border-width) solid var(--primary);
-        }
-        button {
-          background: none;
-          border: 2px solid transparent;
-          font-size: 1.2rem;
           cursor: pointer;
-          padding: 0.25rem 0.5rem;
-          transition: all 0.2s ease;
+          outline: none;
         }
-        button:hover {
-          background: rgba(0,0,0,0.05);
-        }
-        button.active {
-          border-color: var(--accent);
-          background: rgba(0,0,0,0.05);
+        .theme-select:hover {
+          background: rgba(0,0,0,0.02);
         }
       `}</style>
     </div>

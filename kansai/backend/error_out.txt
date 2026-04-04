@@ -41,7 +41,9 @@ Traceback (most recent call last):
            ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
   File "C:\Users\Sahil R Chaudhari\AppData\Local\Programs\Python\Python313\Lib\site-packages\psycopg2\__init__.py", line 135, in connect
     conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
-psycopg2.OperationalError: could not translate host name "db.pbizfrkqgxapwxjjvjxs.supabase.co" to address: Name or service not known
+psycopg2.OperationalError: connection to server at "aws-1-ap-northeast-2.pooler.supabase.com" (3.39.47.126), port 6543 failed: server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
 
 
 The above exception was the direct cause of the following exception:
@@ -138,6 +140,8 @@ Traceback (most recent call last):
            ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
   File "C:\Users\Sahil R Chaudhari\AppData\Local\Programs\Python\Python313\Lib\site-packages\psycopg2\__init__.py", line 135, in connect
     conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
-sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) could not translate host name "db.pbizfrkqgxapwxjjvjxs.supabase.co" to address: Name or service not known
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "aws-1-ap-northeast-2.pooler.supabase.com" (3.39.47.126), port 6543 failed: server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
 
 (Background on this error at: https://sqlalche.me/e/20/e3q8)

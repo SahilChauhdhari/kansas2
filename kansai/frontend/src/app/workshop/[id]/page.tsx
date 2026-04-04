@@ -262,11 +262,6 @@ export default function Workshop() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)', color: 'var(--text-dark)' }}>
-      {/* Navbar Overlay */}
-      <div style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 100, display: 'flex', gap: '1rem', alignItems: 'center' }}>
-         <ThemeSwitcher />
-         <Link href="/dashboard"><button className="btn btn-secondary">Studio</button></Link>
-      </div>
 
       <div style={{ width: '300px', borderRight: 'var(--border-width) solid var(--primary)', padding: '2rem', background: 'var(--card-bg)', overflowY: 'auto', zIndex: 10, backdropFilter: 'var(--blur)' }}>
         <h2 style={{fontWeight: 900, fontSize: '2rem'}}>WORKSHOP</h2>
@@ -315,6 +310,12 @@ export default function Workshop() {
         onMouseMove={handleMouseMove}
         onClick={() => { if(viewMode === 'canvas') setSelectedNodeId(null) }}
         style={{ flex: 1, position: 'relative', overflow: 'hidden', background: theme.background }}>
+        
+        {/* Navbar Overlay */}
+        <div style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 100, display: 'flex', gap: '1rem', alignItems: 'center' }}>
+           <ThemeSwitcher />
+           <Link href="/dashboard"><button className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontWeight: 'bold' }}>Studio</button></Link>
+        </div>
         
         {Object.values(remoteCursors).map(c => (
            <div key={c.id} style={{ 

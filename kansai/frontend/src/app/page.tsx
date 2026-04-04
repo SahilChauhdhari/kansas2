@@ -74,8 +74,8 @@ export default function Home() {
                   <div className="shape shape-2" style={{background: 'var(--accent-2)'}}></div>
                   <div className="shape shape-3" style={{background: 'var(--accent-3)'}}></div>
                   <div className="floating-card" style={{background: 'var(--card-bg)', border: 'var(--border-width) solid var(--primary)', boxShadow: 'var(--card-shadow)', backdropFilter: 'var(--blur)'}}>
-                      <div className="card-item" style={{borderBottom: '2px solid var(--primary)'}}>📋 24 Forms</div>
-                      <div className="card-item" style={{borderBottom: 'none'}}>📊 2,048 Responses</div>
+                      <div className="card-item" style={{borderBottom: '2px solid var(--primary)', justifyContent: 'center', fontSize: '2.5rem', padding: '1rem'}}>📋</div>
+                      <div className="card-item" style={{borderBottom: 'none', justifyContent: 'center', fontSize: '2.5rem', padding: '1rem'}}>📊</div>
                   </div>
               </div>
           </div>
