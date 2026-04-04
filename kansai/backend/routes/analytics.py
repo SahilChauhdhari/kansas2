@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import uuid
@@ -16,12 +16,23 @@ from config import Config
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
 @router.post("/form/{form_id}/event")
-def log_event(form_id: int, event_data: dict, db: Session = Depends(get_db)):
+def log_event(form_id: int, event_data: dict, request: Request, db: Session = Depends(get_db)):
     # Public endpoint for form telemetry
+    user_agent = request.headers.get("user-agent", "").lower()
+    
+    device_type = "Desktop"
+    if "ipad" in user_agent or "tablet" in user_agent:
+        device_type = "Tablet"
+    elif "mobi" in user_agent or "android" in user_agent or "iphone" in user_agent:
+        device_type = "Mobile"
+        
+    metadata = event_data.get("metadata", {})
+    metadata["device"] = device_type
+    
     new_event = Analytics(
         form_id=form_id,
         event_type=event_data.get("event_type"),
-        event_metadata=event_data.get("metadata", {})
+        event_metadata=metadata
     )
     db.add(new_event)
     db.commit()
@@ -79,6 +90,26 @@ def get_metrics(form_id: int, db: Session = Depends(get_db), token: str = Depend
             
     timeline_arr = [{"name": k, "responses": v} for k, v in timeline_dict.items()]
 
+    device_counts = {"Desktop": 0, "Mobile": 0, "Tablet": 0}
+    for e in events:
+        if e.event_type == 'view':
+            device = e.event_metadata.get("device", "Desktop") if e.event_metadata else "Desktop"
+            if device in device_counts:
+                device_counts[device] += 1
+
+    devices_arr = [
+        {"name": "Desktop", "value": device_counts["Desktop"], "fill": "#3b82f6"},
+        {"name": "Mobile", "value": device_counts["Mobile"], "fill": "#10b981"},
+        {"name": "Tablet", "value": device_counts["Tablet"], "fill": "#f59e0b"}
+    ]
+    # Prevent completely empty charts by yielding default formatting if zero views
+    if sum(device_counts.values()) == 0:
+        devices_arr = [
+            {"name": "Desktop", "value": 1, "fill": "#3b82f6"},
+            {"name": "Mobile", "value": 0, "fill": "#10b981"},
+            {"name": "Tablet", "value": 0, "fill": "#f59e0b"}
+        ]
+
     return {
         "completions": completes,
         "views": views,
@@ -86,11 +117,7 @@ def get_metrics(form_id: int, db: Session = Depends(get_db), token: str = Depend
         "conversion_rate": conversion_rate,
         "avg_time": "1m 45s", # Placeholder for actual time telemetry tracking
         "timeline": timeline_arr,
-        "devices": [
-            {"name": "Desktop", "value": 60, "fill": "#3b82f6"},
-            {"name": "Mobile", "value": 35, "fill": "#10b981"},
-            {"name": "Tablet", "value": 5, "fill": "#f59e0b"}
-        ]
+        "devices": devices_arr
     }
 
 @router.get("/form/{form_id}/export/json")
@@ -117,6 +144,19 @@ def export_analytics_json(form_id: int, db: Session = Depends(get_db)):
                 
     timeline_arr = [{"name": k, "responses": v} for k, v in timeline_dict.items()]
     
+    device_counts = {"Desktop": 0, "Mobile": 0, "Tablet": 0}
+    for e in events:
+        if e.event_type == 'view':
+            device = e.event_metadata.get("device", "Desktop") if e.event_metadata else "Desktop"
+            if device in device_counts:
+                device_counts[device] += 1
+
+    devices_arr = [
+        {"name": "Desktop", "value": device_counts["Desktop"]},
+        {"name": "Mobile", "value": device_counts["Mobile"]},
+        {"name": "Tablet", "value": device_counts["Tablet"]}
+    ]
+
     data = {
         "form_id": form_id,
         "metrics": {
@@ -127,11 +167,7 @@ def export_analytics_json(form_id: int, db: Session = Depends(get_db)):
             "avg_time": "1m 45s"
         },
         "timeline": timeline_arr,
-        "devices": [
-            {"name": "Desktop", "value": 60},
-            {"name": "Mobile", "value": 35},
-            {"name": "Tablet", "value": 5}
-        ]
+        "devices": devices_arr
     }
     
     response = FastAPIResponse(content=json.dumps(data, indent=2), media_type="application/json")
@@ -175,11 +211,18 @@ def export_analytics_csv(form_id: int, db: Session = Depends(get_db)):
     for k, v in timeline_dict.items():
         writer.writerow([k, v])
         
+    device_counts = {"Desktop": 0, "Mobile": 0, "Tablet": 0}
+    for e in events:
+        if e.event_type == 'view':
+            device = e.event_metadata.get("device", "Desktop") if e.event_metadata else "Desktop"
+            if device in device_counts:
+                device_counts[device] += 1
+                
     writer.writerow([])
-    writer.writerow(["Device Split", "Percentage"])
-    writer.writerow(["Desktop", 60])
-    writer.writerow(["Mobile", 35])
-    writer.writerow(["Tablet", 5])
+    writer.writerow(["Device Split", "Count"])
+    writer.writerow(["Desktop", device_counts["Desktop"]])
+    writer.writerow(["Mobile", device_counts["Mobile"]])
+    writer.writerow(["Tablet", device_counts["Tablet"]])
         
     response = FastAPIResponse(content=output.getvalue(), media_type="text/csv")
     response.headers["Content-Disposition"] = f"attachment; filename=form_{form_id}_analytics.csv"

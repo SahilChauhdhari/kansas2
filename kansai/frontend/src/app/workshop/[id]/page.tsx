@@ -46,6 +46,9 @@ export default function Workshop() {
   const [history, setHistory] = useState<any[]>([{ nodes: [], edges: [], theme: DEFAULT_THEME, settings: DEFAULT_SETTINGS }]);
   const [historyIndex, setHistoryIndex] = useState(0);
 
+  const [formSlug, setFormSlug] = useState<string | null>(null);
+  const [showShare, setShowShare] = useState(false);
+
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -81,6 +84,7 @@ export default function Workshop() {
         setEdges(eds);
         setTheme(thm);
         setSettings(sets);
+        if (data.slug) setFormSlug(data.slug);
         setHistory([{ nodes: nds, edges: eds, theme: thm, settings: sets }]);
         setHistoryIndex(0);
       }
@@ -223,7 +227,7 @@ export default function Workshop() {
     } catch (e) { console.error(e); }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (silent = false) => {
     if (!token || !id) return;
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/workshop/forms/${id}`, {
@@ -231,9 +235,18 @@ export default function Workshop() {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ nodes, edges, theme, settings })
       });
-      if (res.ok) alert("COMPILATION SUCCESSFUL: DATA PERSISTED.");
-      else alert("TRANSMISSION ERROR: SAVE FAILED.");
-    } catch (e) { alert("SYSTEM FAILURE: COULD NOT REACH BACKEND."); }
+      if (!silent) {
+        if (res.ok) alert("COMPILATION SUCCESSFUL: DATA PERSISTED.");
+        else alert("TRANSMISSION ERROR: SAVE FAILED.");
+      }
+    } catch (e) { 
+      if (!silent) alert("SYSTEM FAILURE: COULD NOT REACH BACKEND."); 
+    }
+  };
+
+  const handlePublish = async () => {
+    await handleSave(true);
+    setShowShare(true);
   };
 
   const updateNodeData = (nodeId: string, newData: any) => {
@@ -425,7 +438,14 @@ export default function Workshop() {
                      <input type="checkbox" checked={!!settings.gamification} onChange={e => dispatchUpdate(nodes, edges, theme, {...settings, gamification: e.target.checked})} style={{width:'18px', height:'18px', cursor: 'pointer'}}/>
                       GAMIFICATION MODE
                     </label>
-                    <button onClick={handleSave} className="btn btn-primary" style={{width: '100%', marginTop: '2rem', fontSize:'1rem', height:'50px'}}>SAVE PROJECT</button>
+                    <button onClick={() => handleSave(false)} className="btn btn-secondary" style={{width: '100%', marginTop: '2rem', fontSize:'0.9rem', height:'40px'}}>SAVE DRAFT</button>
+                    <button onClick={handlePublish} className="btn btn-primary" style={{width: '100%', marginTop: '0.5rem', fontSize:'1rem', height:'50px'}}>PUBLISH & SHARE</button>
+                    {showShare && formSlug && (
+                        <div style={{marginTop: '1rem', padding: '1rem', background: 'var(--accent-3)', border: '2px dashed black', color: 'black', borderRadius: '4px'}}>
+                           <p style={{fontWeight:900, fontSize:'0.8rem', textTransform:'uppercase'}}>LIVE PUBLIC LINK:</p>
+                           <input type="text" readOnly value={`${window.location.origin}/stage/${formSlug}`} style={{width:'100%', padding:'0.5rem', marginTop:'0.5rem', fontWeight: 'bold'}} onClick={e => e.currentTarget.select()} />
+                        </div>
+                    )}
                     <p style={{fontSize: '0.7rem', opacity: 0.5, marginTop: '1rem', textAlign: 'center'}}>CTRL+Z to Undo, CTRL+Y to Redo</p>
                  </div>
             </>
