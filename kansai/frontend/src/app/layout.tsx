@@ -4,7 +4,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 
 export const metadata: Metadata = {
-  title: "FORMFLOW - Modern Form Solution",
+  title: "SCRIBA - Modern Form Solution",
   description: "Create powerful forms with zero coding.",
 };
 

@@ -16,7 +16,18 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
+  const [forms, setForms] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch((process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8001') + '/workshop/forms', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(res => res.ok ? res.json() : [])
+    .then(data => setForms(data))
+    .catch(() => {});
+  }, [token]);
 
   // Keyboard shortcut to open modal
   useEffect(() => {
@@ -38,7 +49,7 @@ export default function Home() {
           <div className="navbar-container">
               <div className="logo">
                   <span className="logo-icon">⚡</span>
-                  <span className="logo-text">FORMFLOW</span>
+                  <span className="logo-text">SCRIBA</span>
               </div>
               <ul className="nav-links">
                   <li><a href="#features">Features</a></li>
@@ -64,10 +75,29 @@ export default function Home() {
                   <p className="hero-subtitle">Create powerful forms with zero coding. Launch in minutes. Scale infinitely.</p>
                   <div className="hero-buttons">
                       <Link href="/dashboard">
-                        <button className="btn btn-primary">Start Building Free</button>
+                        <button className="btn btn-primary">{user ? "Enter Studio" : "Start Building Free"}</button>
                       </Link>
                       <button className="btn btn-secondary">Watch Demo</button>
                   </div>
+                  
+                  {user && forms.length > 0 && (
+                      <div style={{marginTop: '3rem', background: 'var(--card-bg)', border: 'var(--border-width) solid var(--primary)', padding: '2rem', boxShadow: 'var(--card-shadow)'}}>
+                         <h3 style={{textTransform: 'uppercase', fontWeight: 900, marginBottom: '1rem', borderBottom: '2px dashed var(--primary)', paddingBottom: '0.5rem'}}>Quick Access Endpoints</h3>
+                         <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+                             {forms.slice(0,3).map((f:any) => (
+                                 <div key={f.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem'}}>
+                                     <strong style={{fontSize: '1.2rem'}}>{f.title}</strong>
+                                     <div style={{display: 'flex', gap: '0.5rem'}}>
+                                        <Link href={`/workshop/${f.id}`}><button className="btn" style={{padding: '0.4rem 0.8rem', fontSize:'0.8rem'}}>Workshop</button></Link>
+                                        <Link href={`/analytics/${f.id}`}><button className="btn" style={{padding: '0.4rem 0.8rem', fontSize:'0.8rem', background:'var(--accent-2)'}}>Analytics</button></Link>
+                                        <Link href={`/vault/${f.id}`}><button className="btn" style={{padding: '0.4rem 0.8rem', fontSize:'0.8rem', background:'var(--accent-3)'}}>Vault</button></Link>
+                                     </div>
+                                 </div>
+                             ))}
+                             {forms.length > 3 && <Link href="/dashboard" style={{textAlign: 'center', marginTop: '1rem', fontWeight: 'bold', color: 'var(--accent)', textDecoration: 'none'}}>View All Projects &rarr;</Link>}
+                         </div>
+                      </div>
+                  )}
               </div>
               <div className="hero-illustration">
                   <div className="shape shape-1" style={{background: 'var(--accent)'}}></div>
@@ -80,7 +110,7 @@ export default function Home() {
       <footer className="footer" id="features">
           <div className="footer-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '2rem' }}>
               <div>
-                  <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>FormFlow Features</h3>
+                  <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Scriba Features</h3>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '3rem', justifyContent: 'center' }}>
                       <li style={{ maxWidth: '250px' }}>
                           <span style={{ fontSize: '1.5rem', display: 'block', marginBottom: '0.5rem' }}>🎨</span>
@@ -101,7 +131,7 @@ export default function Home() {
               </div>
           </div>
           <div className="footer-bottom" style={{ marginTop: '2rem' }}>
-              &copy; {new Date().getFullYear()} FormFlow. All rights reserved.
+              &copy; {new Date().getFullYear()} Scriba. All rights reserved.
           </div>
       </footer>
 

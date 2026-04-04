@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 load_dotenv(override=True)
 
 # Pre-compute values so they are easy to use in logic
-_db_url = os.getenv("DATABASE_URL", "sqlite:///./formflow.db")
+_db_url = os.getenv("DATABASE_URL", "sqlite:///./scriba.db")
 _db_pool_size = int(os.getenv("DATABASE_POOL_SIZE", "5"))
 _db_max_overflow = int(os.getenv("DATABASE_MAX_OVERFLOW", "20"))
 

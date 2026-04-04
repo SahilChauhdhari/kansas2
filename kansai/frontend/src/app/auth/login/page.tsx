@@ -37,9 +37,12 @@ export default function LoginPage() {
 
   return (
     <div className="auth-container">
+        <Link href="/" style={{position: 'absolute', top: '2rem', left: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 900, textDecoration: 'none', color: 'var(--text-dark)', fontSize: '1.5rem', zIndex: 100}}>
+           <span style={{fontSize: '1.8rem'}}>⚡</span> SCRIBA
+        </Link>
       <div className="auth-card">
         <h1>Welcome Back</h1>
-        <p>Login to your FormFlow Studio</p>
+        <p>Login to your Scriba Studio</p>
         
         {error && <div className="error-message">{error}</div>}
         

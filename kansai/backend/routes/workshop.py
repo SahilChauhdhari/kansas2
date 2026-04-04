@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_
 from typing import List
 import json
 import uuid
@@ -43,13 +44,24 @@ def get_current_user(db: Session, token: str):
 @router.get("/forms")
 def get_forms(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     current_user = get_current_user(db, token)
-    forms = db.query(Form).filter(Form.created_by == current_user.id).all()
+    forms = db.query(Form).filter(
+        or_(
+            Form.created_by == current_user.id,
+            Form.collaborators.any(User.id == current_user.id)
+        )
+    ).all()
     return forms
 
 @router.get("/forms/{form_id}")
 def get_form(form_id: int, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     current_user = get_current_user(db, token)
-    form = db.query(Form).filter(Form.id == form_id, Form.created_by == current_user.id).first()
+    form = db.query(Form).filter(
+        Form.id == form_id,
+        or_(
+            Form.created_by == current_user.id,
+            Form.collaborators.any(User.id == current_user.id)
+        )
+    ).first()
     if not form:
         raise HTTPException(status_code=404, detail="Form not found")
     return form
@@ -61,7 +73,7 @@ def create_form(form_data: dict, db: Session = Depends(get_db), token: str = Dep
     new_form = Form(
         slug=f"{uuid.uuid4().hex[:12]}",
         title=form_data.get("title", "Untitled Form"),
-        description=form_data.get("description", "A brand new FormFlow project."),
+        description=form_data.get("description", "A brand new Scriba project."),
         fields=[],
         field_order=[],
         created_by=current_user.id
@@ -74,7 +86,13 @@ def create_form(form_data: dict, db: Session = Depends(get_db), token: str = Dep
 @router.put("/forms/{form_id}")
 def update_form(form_id: int, form_data: dict, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     current_user = get_current_user(db, token)
-    form = db.query(Form).filter(Form.id == form_id, Form.created_by == current_user.id).first()
+    form = db.query(Form).filter(
+        Form.id == form_id,
+        or_(
+            Form.created_by == current_user.id,
+            Form.collaborators.any(User.id == current_user.id)
+        )
+    ).first()
     
     if not form:
         raise HTTPException(status_code=404, detail="Form not found")
@@ -116,6 +134,31 @@ def delete_form(form_id: int, db: Session = Depends(get_db), token: str = Depend
     db.delete(form)
     db.commit()
     return {"status": "deleted", "id": form_id}
+
+@router.get("/users/search")
+def search_users(email: str, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+    current_user = get_current_user(db, token)
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"id": user.id, "email": user.email, "username": user.username}
+
+@router.post("/forms/{form_id}/invite")
+def invite_collaborator(form_id: int, payload: dict, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+    current_user = get_current_user(db, token)
+    form = db.query(Form).filter(Form.id == form_id, Form.created_by == current_user.id).first()
+    if not form:
+        raise HTTPException(status_code=403, detail="Only the owner can invite collaborators")
+        
+    target_user = db.query(User).filter(User.email == payload.get("email")).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    if target_user not in form.collaborators:
+        form.collaborators.append(target_user)
+        db.commit()
+        
+    return {"status": "invited", "user": {"email": target_user.email, "username": target_user.username}}
 
 @router.post("/upload")
 async def upload_file(file: UploadFile = File(...)):

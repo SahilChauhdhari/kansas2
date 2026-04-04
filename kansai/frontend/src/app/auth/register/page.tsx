@@ -53,8 +53,11 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-container">
+        <Link href="/" style={{position: 'absolute', top: '2rem', left: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 900, textDecoration: 'none', color: 'var(--text-dark)', fontSize: '1.5rem', zIndex: 100}}>
+           <span style={{fontSize: '1.8rem'}}>⚡</span> SCRIBA
+        </Link>
       <div className="auth-card">
-        <h1>Join FormFlow</h1>
+        <h1>Join Scriba</h1>
         <p>Create your Studio account</p>
         
         {error && <div className="error-message">{error}</div>}

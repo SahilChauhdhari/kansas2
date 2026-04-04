@@ -4,7 +4,7 @@ from database.database import engine
 import models.models as models
 
 # Initialize FastAPI App
-app = FastAPI(title="FormFlow API", description="Form Builder Backend", version="1.0.0")
+app = FastAPI(title="Scriba API", description="Form Builder Backend", version="1.0.0")
 
 # CORS setup
 app.add_middleware(
@@ -34,11 +34,11 @@ app.include_router(ws_router)
 
 @app.get("/")
 def read_root():
-    return {"message": "FormFlow API is running."}
+    return {"message": "Scriba API is running."}
 
 @app.on_event("startup")
 def on_startup():
-    print("Starting up FormFlow API...")
+    print("Starting up Scriba API...")
     try:
         # Create database tables if Postgres is securely connected
         models.Base.metadata.create_all(bind=engine)

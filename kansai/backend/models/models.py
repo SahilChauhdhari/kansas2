@@ -18,6 +18,11 @@ FormStatusValues = ('draft', 'active', 'archived', 'published')
 
 FormPermissionValues = ('owner', 'editor', 'viewer', 'readonly')
 
+form_collaborators = Table('form_collaborators', Base.metadata,
+    Column('form_id', Integer, ForeignKey('forms.id'), primary_key=True),
+    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+)
+
 class User(Base):
     """User model for admin authentication."""
     __tablename__ = 'users'
@@ -35,6 +40,7 @@ class User(Base):
 
     # Relationships
     forms = relationship("Form", foreign_keys="Form.created_by", back_populates="owner")
+    shared_forms = relationship("Form", secondary=form_collaborators, back_populates="collaborators")
 
     __table_args__ = (
         Index('ix_users_email', 'email'),
@@ -70,6 +76,7 @@ class Form(Base):
     # Relationships
     owner = relationship("User", foreign_keys=[created_by], back_populates="forms")
     editor = relationship("User", foreign_keys=[updated_by], backref="edited_forms")
+    collaborators = relationship("User", secondary=form_collaborators, back_populates="shared_forms")
     theme = relationship("Theme", backref="forms")
     responses = relationship("Response", back_populates="form", cascade="all, delete-orphan")
     analytics = relationship("Analytics", back_populates="form", cascade="all, delete-orphan")
