@@ -220,11 +220,18 @@ export default function Workshop() {
         body: JSON.stringify({ prompt: aiPrompt })
       });
       const data = await res.json();
+      if (!res.ok) {
+        alert("AI Generation Error: " + (data.detail || "API quota limit reached or server error."));
+        return;
+      }
       if (data.schema) {
          const parsed = JSON.parse(data.schema);
          dispatchUpdate(parsed.nodes || [], parsed.edges || []);
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      alert("AI Request Failed to reach backend.");
+    }
   };
 
   const handleSave = async (silent = false) => {

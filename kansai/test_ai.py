@@ -2,13 +2,13 @@ import requests
 import json
 
 def test_ai_generate():
-    url = "http://localhost:8000/ai/generate-form"
+    url = "http://localhost:8001/ai/generate-form"
     payload = {"prompt": "Short test form"}
     
     try:
         response = requests.post(url, json=payload)
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text}")
+        data = response.json()
+        print("Raw schema:", data["schema"])
     except Exception as e:
         print(f"Error: {e}")
 
