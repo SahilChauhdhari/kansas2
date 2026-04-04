@@ -439,8 +439,8 @@ export default function Workshop() {
                      <input type="checkbox" checked={!!settings.gamification} onChange={e => dispatchUpdate(nodes, edges, theme, {...settings, gamification: e.target.checked})} style={{width:'18px', height:'18px', cursor: 'pointer'}}/>
                       GAMIFICATION MODE
                     </label>
-                    <button onClick={() => handleSave(false)} className="btn btn-secondary" style={{width: '100%', marginTop: '2rem', fontSize:'0.9rem', height:'40px'}}>SAVE DRAFT</button>
-                    <button onClick={handlePublish} className="btn btn-primary" style={{width: '100%', marginTop: '0.5rem', fontSize:'1rem', height:'50px'}}>PUBLISH & SHARE</button>
+                    <button onClick={() => handleSave(false)} className="btn btn-secondary" style={{width: '100%', marginTop: '2rem', fontSize:'0.9rem', minHeight:'40px', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center'}}>SAVE DRAFT</button>
+                    <button onClick={handlePublish} className="btn btn-primary" style={{width: '100%', marginTop: '0.5rem', fontSize:'1rem', minHeight:'50px', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center'}}>PUBLISH & SHARE</button>
                     {showShare && formSlug && (
                         <div style={{marginTop: '1rem', padding: '1rem', background: 'var(--accent-3)', border: '2px dashed black', color: 'black', borderRadius: '4px'}}>
                            <p style={{fontWeight:900, fontSize:'0.8rem', textTransform:'uppercase'}}>LIVE PUBLIC LINK:</p>

@@ -126,20 +126,6 @@ export default function FormAnalytics() {
                 >
                   Download .CSV
                 </button>
-                <button 
-                  className="btn btn-secondary" 
-                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/vault/form/${id}/export/json`, '_blank')}
-                  style={{fontWeight: 900}}
-                >
-                  Download .JSON
-                </button>
-                <button 
-                  className="btn btn-secondary" 
-                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/vault/form/${id}/export/css`, '_blank')}
-                  style={{fontWeight: 900}}
-                >
-                  Download Custom .CSS
-                </button>
               </div>
             </div>
 
