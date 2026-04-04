@@ -26,6 +26,8 @@ export default function Dashboard() {
       if (res.ok) {
         const data = await res.json();
         setForms(data || []);
+      } else if (res.status === 401 || res.status === 403) {
+         logout();
       }
     } catch (err) {
       console.error('Failed to fetch forms', err);

@@ -9,13 +9,8 @@ app = FastAPI(title="Scriba API", description="Form Builder Backend", version="1
 # CORS setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://kansas2.vercel.app",
-        "http://localhost:8000",
-        "http://localhost:8001"
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
