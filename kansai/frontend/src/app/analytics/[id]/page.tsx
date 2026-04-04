@@ -115,6 +115,53 @@ export default function FormAnalytics() {
                     </ResponsiveContainer>
                 </div>
             </div>
+
+            <div className="vault-exports">
+              <h3 style={{marginBottom: '1rem', textTransform: 'uppercase', fontSize: '1.2rem', fontWeight: 900}}>Vault Data Exports</h3>
+              <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/vault/form/${id}/export/csv`, '_blank')}
+                  style={{background: 'var(--accent)', color: 'black', fontWeight: 900}}
+                >
+                  Download .CSV
+                </button>
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/vault/form/${id}/export/json`, '_blank')}
+                  style={{fontWeight: 900}}
+                >
+                  Download .JSON
+                </button>
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/vault/form/${id}/export/css`, '_blank')}
+                  style={{fontWeight: 900}}
+                >
+                  Download Custom .CSS
+                </button>
+              </div>
+            </div>
+
+            <div className="vault-exports" style={{marginTop: '1rem'}}>
+              <h3 style={{marginBottom: '1rem', textTransform: 'uppercase', fontSize: '1.2rem', fontWeight: 900}}>Analytics Aggregation Exports</h3>
+              <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/analytics/form/${id}/export/csv`, '_blank')}
+                  style={{background: 'var(--primary)', color: 'var(--bg)', fontWeight: 900}}
+                >
+                  Export Analytics .CSV
+                </button>
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/analytics/form/${id}/export/json`, '_blank')}
+                  style={{fontWeight: 900}}
+                >
+                  Export Analytics .JSON
+                </button>
+              </div>
+            </div>
           </>
         )}
       </div>
@@ -130,6 +177,7 @@ export default function FormAnalytics() {
         .kpi-card h2 { font-size: 3.5rem; font-weight: 900; margin-top: 1rem; }
         .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
         .chart-container { background: var(--card-bg); border: var(--border-width) solid var(--primary); padding: 2rem; box-shadow: var(--card-shadow); backdrop-filter: var(--blur); }
+        .vault-exports { margin-top: 2rem; background: var(--card-bg); border: var(--border-width) solid var(--primary); padding: 2.5rem; box-shadow: var(--card-shadow); backdrop-filter: var(--blur); }
         .loading { padding: 10rem; text-align: center; font-weight: 900; font-size: 2rem; background: var(--bg); height: 100vh; }
         .error-state { text-align: center; padding: 5rem; border: var(--border-width) solid var(--primary); background: var(--card-bg); box-shadow: var(--card-shadow); }
         .error-state.brute { background: var(--secondary); }

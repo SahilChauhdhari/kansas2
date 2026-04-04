@@ -278,7 +278,7 @@ export default function Workshop() {
         
         <h3 style={{textTransform: 'uppercase', fontSize: '0.9rem'}}>Field Types</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '1rem' }}>
-          {['short_answer', 'long_answer', 'number', 'dropdown', 'radio', 'rating', 'date_range', 'file'].map(type => (
+          {['short_answer', 'long_answer', 'number', 'dropdown', 'radio', 'rating', 'date_range', 'file', 'button', 'custom_button'].map(type => (
             <div 
               key={type} 
               draggable 
@@ -368,7 +368,11 @@ export default function Workshop() {
                       Is Required?
                    </label>
                 </div>
-                {selectedNode.data.type === 'number' && (
+                <div style={{marginTop: '1.5rem'}}>
+                   <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Data Type</label>
+                   <input type="text" placeholder="e.g. text, submit, file" value={selectedNode.data.datatype as string || ''} onChange={e => updateNodeData(selectedNode.id, { datatype: e.target.value })} style={{width: '100%', padding: '0.5rem'}}/>
+                </div>
+                {['number', 'date_range', 'button', 'custom_button', 'short_answer', 'long_answer'].includes(selectedNode.data.type as string) && (
                     <div style={{marginTop: '1.5rem', display: 'flex', gap: '1rem'}}>
                         <div>
                            <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Min</label>
