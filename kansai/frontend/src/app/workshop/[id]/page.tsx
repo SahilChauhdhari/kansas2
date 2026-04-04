@@ -347,9 +347,25 @@ export default function Workshop() {
                   <div 
                     key={n.id} 
                     onClick={(e) => { e.stopPropagation(); setSelectedNodeId(n.id); }}
-                    style={{ marginBottom: '2.5rem', fontFamily: theme.font_family, padding: '1rem', outline: selectedNodeId === n.id ? '2px dashed var(--accent)' : 'none', cursor: 'pointer' }}>
-                    <label style={{ display: 'block', fontWeight: 900, marginBottom: '0.75rem', textTransform: 'uppercase', fontSize: '0.8rem' }}>
-                        {String(n.data.label)} {!!n.data.is_required && <span style={{color:'red'}}>*</span>}
+                    style={{ position: 'relative', marginBottom: '2.5rem', fontFamily: theme.font_family, padding: '1rem', outline: selectedNodeId === n.id ? '2px dashed var(--accent)' : 'none', cursor: 'pointer', background: 'var(--card-bg)', borderRadius: `${theme.border_radius}px`, boxShadow: selectedNodeId === n.id ? 'var(--card-shadow)' : 'none' }}>
+                    
+                    <button 
+                       onClick={(e) => { e.stopPropagation(); setNodes(nodes.filter(node => node.id !== n.id)); }}
+                       style={{ position: 'absolute', top: '-10px', right: '-10px', background: 'var(--accent)', color: 'white', border: '2px solid black', borderRadius: '50%', width: '28px', height: '28px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', zIndex: 10 }}>
+                       ×
+                    </button>
+
+                    <label style={{ display: 'flex', alignItems: 'center', fontWeight: 900, marginBottom: '0.75rem', textTransform: 'uppercase', fontSize: '0.8rem', width: '100%' }}>
+                        <input 
+                           type="text" 
+                           value={n.data.label as string} 
+                           onChange={(e) => updateNodeData(n.id, { label: e.target.value })}
+                           onClick={(e) => e.stopPropagation()}
+                           onFocus={(e) => setSelectedNodeId(n.id)}
+                           style={{ flex: 1, background: 'transparent', border: '1px dashed transparent', borderBottom: selectedNodeId === n.id ? '1px dashed var(--primary)' : 'none', outline: 'none', fontWeight: 900, textTransform: 'uppercase', fontSize: '0.8rem', color: 'inherit', padding: '0.2rem' }}
+                           placeholder="Enter Field Label"
+                        />
+                        {!!n.data.is_required && <span style={{color:'red', marginLeft: '0.5rem'}}>*</span>}
                     </label>
                     <input type="text" placeholder={n.data.type as string} style={{width:'100%', padding:'1rem', border: `2px solid ${theme.primary_color}`, borderRadius: `${theme.border_radius}px`, background: 'transparent'}} disabled />
                   </div>

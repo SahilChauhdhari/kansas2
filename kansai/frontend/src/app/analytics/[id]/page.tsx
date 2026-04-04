@@ -122,9 +122,16 @@ export default function FormAnalytics() {
                 <button 
                   className="btn btn-primary" 
                   onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/vault/form/${id}/export/csv`, '_blank')}
-                  style={{background: 'var(--accent)', color: 'black', fontWeight: 900}}
+                  style={{background: 'var(--primary)', color: 'var(--bg)', fontWeight: 900, border: 'var(--border-width) solid var(--primary)'}}
                 >
-                  Download .CSV
+                  Download Vault .CSV
+                </button>
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/vault/form/${id}/export/json`, '_blank')}
+                  style={{background: 'var(--secondary)', color: 'var(--primary)', fontWeight: 900, border: 'var(--border-width) solid var(--primary)'}}
+                >
+                  Download Vault .JSON
                 </button>
               </div>
             </div>
@@ -135,14 +142,14 @@ export default function FormAnalytics() {
                 <button 
                   className="btn btn-primary" 
                   onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/analytics/form/${id}/export/csv`, '_blank')}
-                  style={{background: 'var(--primary)', color: 'var(--bg)', fontWeight: 900}}
+                  style={{background: 'var(--primary)', color: 'var(--bg)', fontWeight: 900, border: 'var(--border-width) solid var(--primary)'}}
                 >
                   Export Analytics .CSV
                 </button>
                 <button 
                   className="btn btn-secondary" 
                   onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/analytics/form/${id}/export/json`, '_blank')}
-                  style={{fontWeight: 900}}
+                  style={{background: 'var(--secondary)', color: 'var(--primary)', fontWeight: 900, border: 'var(--border-width) solid var(--primary)'}}
                 >
                   Export Analytics .JSON
                 </button>

@@ -115,7 +115,7 @@ def get_metrics(form_id: int, db: Session = Depends(get_db), token: str = Depend
         "views": views,
         "starts": starts,
         "conversion_rate": conversion_rate,
-        "avg_time": "1m 45s", # Placeholder for actual time telemetry tracking
+        "avg_time": "N/A", 
         "timeline": timeline_arr,
         "devices": devices_arr
     }
@@ -164,7 +164,7 @@ def export_analytics_json(form_id: int, db: Session = Depends(get_db)):
             "starts": starts,
             "completions": completes,
             "conversion_rate": conversion_rate,
-            "avg_time": "1m 45s"
+            "avg_time": "N/A"
         },
         "timeline": timeline_arr,
         "devices": devices_arr
@@ -192,7 +192,7 @@ def export_analytics_csv(form_id: int, db: Session = Depends(get_db)):
     writer.writerow(["Total Starts", starts])
     writer.writerow(["Total Completions", completes])
     writer.writerow(["Conversion Rate (%)", conversion_rate])
-    writer.writerow(["Average Time", "1m 45s"])
+    writer.writerow(["Average Time", "N/A"])
     
     writer.writerow([])
     writer.writerow(["Timeline Activity", "Responses"])

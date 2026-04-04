@@ -8,11 +8,10 @@ export default function ThemeSwitcher() {
     <div className="theme-switcher">
       <select 
         value={theme} 
-        onChange={(e) => setTheme(e.target.value as 'neo-brutalism' | 'liquid-glass' | 'minimalist')}
+        onChange={(e) => setTheme(e.target.value as 'neo-brutalism' | 'minimalist')}
         className="theme-select"
       >
         <option value="neo-brutalism">Neo-Brutalism</option>
-        <option value="liquid-glass">Liquid Glass</option>
         <option value="minimalist">Minimalist</option>
       </select>
 

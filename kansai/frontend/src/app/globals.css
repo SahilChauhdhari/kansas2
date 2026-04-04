@@ -22,20 +22,6 @@
     --nav-bg: #fff;
 }
 
-[data-theme='liquid-glass'] {
-    --primary: #fff;
-    --secondary: #1a1a1a;
-    --accent: #00d9ff;
-    --accent-2: #8338ec;
-    --bg: linear-gradient(135deg, #121212 0%, #1e1e2e 100%);
-    --text-dark: #fff;
-    --text-light: #aaa;
-    --border-width: 1px;
-    --card-bg: rgba(255, 255, 255, 0.05);
-    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    --nav-bg: rgba(25, 25, 35, 0.8);
-    --blur: blur(12px);
-}
 
 [data-theme='minimalist'] {
     --primary: #111;
