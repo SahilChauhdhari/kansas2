@@ -19,13 +19,24 @@ def export_csv(form_id: int, db: Session = Depends(get_db)):
     responses = db.query(Response).filter(Response.form_id == form_id).all()
     
     output = io.StringIO()
-    # In a dynamic form, the columns would depend on the schema.
-    # For now, we will just dump the JSON blob as a string or flat it out.
     writer = csv.writer(output)
-    writer.writerow(["Response ID", "Submitted At", "Data", "Status"])
+    
+    # Extract unique keys from all submission data across responses
+    dynamic_keys = set()
+    for r in responses:
+        if isinstance(r.submission_data, dict):
+            dynamic_keys.update(r.submission_data.keys())
+    
+    dynamic_keys = sorted(list(dynamic_keys))
+    headers = ["Response ID", "Submitted At", "Status"] + dynamic_keys
+    writer.writerow(headers)
     
     for r in responses:
-        writer.writerow([r.id, r.submitted_at, json.dumps(r.submission_data), r.submission_status])
+        row = [r.id, r.submitted_at.isoformat() if r.submitted_at else '', r.submission_status]
+        for key in dynamic_keys:
+            data_dict = r.submission_data if isinstance(r.submission_data, dict) else {}
+            row.append(str(data_dict.get(key, '')))
+        writer.writerow(row)
         
     response = FastAPIResponse(content=output.getvalue(), media_type="text/csv")
     response.headers["Content-Disposition"] = f"attachment; filename=form_{form_id}_export.csv"

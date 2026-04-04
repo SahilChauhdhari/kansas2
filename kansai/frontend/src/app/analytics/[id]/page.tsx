@@ -25,20 +25,10 @@ export default function FormAnalytics() {
         // Standardize metrics for the UI
         const standardized = {
             total_responses: metrics.completions || 0,
-            avg_completion_time: metrics.avg_time || "2m 15s",
+            avg_completion_time: metrics.avg_time || "0m 0s",
             conversion_rate: metrics.conversion_rate || 0,
-            timeline: [
-                { name: 'Mon', responses: (metrics.completions || 0) * 0.1 },
-                { name: 'Tue', responses: (metrics.completions || 0) * 0.2 },
-                { name: 'Wed', responses: (metrics.completions || 0) * 0.4 },
-                { name: 'Thu', responses: (metrics.completions || 0) * 0.3 },
-                { name: 'Fri', responses: (metrics.completions || 0) * 0.5 },
-            ],
-            devices: [
-                { name: 'Desktop', value: 60, fill: '#3b82f6' },
-                { name: 'Mobile', value: 35, fill: '#10b981' },
-                { name: 'Tablet', value: 5, fill: '#f59e0b' }
-            ]
+            timeline: metrics.timeline || [],
+            devices: metrics.devices || []
         };
         
         setData(standardized);

@@ -22,7 +22,7 @@ import Link from 'next/link';
 
 type Cursor = { id: string; x: number; y: number };
 type ThemeConfig = { primary_color: string; background: string; font_family: string; border_radius: number };
-type FormSettings = { gamification: boolean };
+type FormSettings = { gamification: boolean; buttons?: { submitText: string, nextText: string, prevText: string } };
 
 const DEFAULT_THEME: ThemeConfig = { 
   primary_color: '#000000', 
@@ -32,7 +32,8 @@ const DEFAULT_THEME: ThemeConfig = {
 };
 
 const DEFAULT_SETTINGS: FormSettings = { 
-  gamification: false 
+  gamification: false,
+  buttons: { submitText: "Submit", nextText: "Next", prevText: "Previous" }
 };
 
 export default function Workshop() {
@@ -40,22 +41,27 @@ export default function Workshop() {
   const { user, token, loading: authLoading } = useAuth();
   const router = useRouter();
   const [viewMode, setViewMode] = useState<'canvas' | 'logic'>('canvas');
+  
+  // Undo/Redo State
+  const [history, setHistory] = useState<any[]>([{ nodes: [], edges: [], theme: DEFAULT_THEME, settings: DEFAULT_SETTINGS }]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+
   const [remoteCursors, setRemoteCursors] = useState<Record<string, Cursor>>({});
   const [aiPrompt, setAiPrompt] = useState('');
   
   const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_THEME);
   const [settings, setSettings] = useState<FormSettings>(DEFAULT_SETTINGS);
 
-const wsBaseUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8001';
-const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/form/${id}`);
+  const wsBaseUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8001';
+  const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/form/${id}`);
   const myId = useRef(Math.random().toString(36).substring(7));
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/auth/login');
-    }
+    if (!authLoading && !user) router.push('/auth/login');
   }, [user, authLoading, router]);
 
   useEffect(() => {
@@ -66,22 +72,54 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
     .then(res => res.ok ? res.json() : null)
     .then(data => {
       if (data) {
-        if (data.nodes) setNodes(data.nodes);
-        else if (data.fields) setNodes(data.fields);
+        const nds = data.nodes || data.fields || [];
+        const eds = data.edges || data.field_order || [];
+        const thm = { ...DEFAULT_THEME, ...(data.theme || {}) };
+        const sets = { ...DEFAULT_SETTINGS, ...(data.settings || {}) };
         
-        if (data.edges) setEdges(data.edges);
-        else if (data.field_order) setEdges(data.field_order);
-        
-        if (data.theme) setTheme({ ...DEFAULT_THEME, ...data.theme });
-        if (data.settings) setSettings({ ...DEFAULT_SETTINGS, ...data.settings });
+        setNodes(nds);
+        setEdges(eds);
+        setTheme(thm);
+        setSettings(sets);
+        setHistory([{ nodes: nds, edges: eds, theme: thm, settings: sets }]);
+        setHistoryIndex(0);
       }
     });
   }, [id, token]);
 
+  // Undo/Redo Keyboard Listeners
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.ctrlKey || e.metaKey) {
+            if (e.key === 'z') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    const newIndex = historyIndex - 1;
+                    const h = history[newIndex];
+                    setNodes(h.nodes); setEdges(h.edges); setTheme(h.theme); setSettings(h.settings);
+                    setHistoryIndex(newIndex);
+                    sendMessage({ type: 'UNDO_ACTION', data: h });
+                }
+            } else if (e.key === 'y') {
+                e.preventDefault();
+                if (historyIndex < history.length - 1) {
+                    const newIndex = historyIndex + 1;
+                    const h = history[newIndex];
+                    setNodes(h.nodes); setEdges(h.edges); setTheme(h.theme); setSettings(h.settings);
+                    setHistoryIndex(newIndex);
+                    sendMessage({ type: 'REDO_ACTION', data: h });
+                }
+            }
+        }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [history, historyIndex, sendMessage]);
+
   useEffect(() => {
     if (!lastMessage) return;
 
-    if (lastMessage.type === 'CURSOR_MOVE' || lastMessage.type === 'USER_CURSOR') {
+    if (lastMessage.type === 'CURSOR_MOVE') {
       if (lastMessage.clientId !== myId.current) {
         setRemoteCursors(prev => ({
           ...prev,
@@ -92,8 +130,7 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
        const cid = lastMessage.clientId;
        setRemoteCursors(prev => {
           const next = {...prev};
-          delete next[cid];
-          return next;
+          delete next[cid]; return next;
        });
     } else if (lastMessage.type === 'SCHEMA_UPDATE' || lastMessage.type === 'UNDO_ACTION' || lastMessage.type === 'REDO_ACTION') {
       const data = lastMessage.data || lastMessage.action?.data;
@@ -106,48 +143,49 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
     }
   }, [lastMessage]);
 
-  const onNodesChange = useCallback(
-    (changes: NodeChange[]) => {
-       setNodes((nds) => {
-          const applied = applyNodeChanges(changes, nds);
-          if (changes.some(c => c.type !== 'select')) {
-             sendMessage({ type: 'SCHEMA_UPDATE', data: { nodes: applied, edges, theme, settings } });
-          }
-          return applied;
-       });
-    },
-    [edges, theme, settings, sendMessage]
-  );
-
-  const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => {
-       setEdges((eds) => {
-          const applied = applyEdgeChanges(changes, eds);
-          sendMessage({ type: 'SCHEMA_UPDATE', data: { nodes, edges: applied, theme, settings } });
-          return applied;
-       });
-    },
-    [nodes, theme, settings, sendMessage]
-  );
-
-  const onConnect = useCallback(
-    (connection: Connection) => {
-       setEdges((eds) => {
-            const applied = addEdge(connection, eds);
-            sendMessage({ type: 'SCHEMA_UPDATE', data: { nodes, edges: applied, theme, settings } });
-            return applied;
-       });
-    },
-    [nodes, theme, settings, sendMessage]
-  );
-
   const dispatchUpdate = (newNodes = nodes, newEdges = edges, newTheme = theme, newSettings = settings) => {
     setNodes(newNodes);
     setEdges(newEdges);
     setTheme(newTheme);
     setSettings(newSettings);
-    sendMessage({ type: 'SCHEMA_UPDATE', data: { nodes: newNodes, edges: newEdges, theme: newTheme, settings: newSettings } });
+    
+    // Push History
+    const newState = { nodes: newNodes, edges: newEdges, theme: newTheme, settings: newSettings };
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(newState);
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+
+    sendMessage({ type: 'SCHEMA_UPDATE', data: newState });
   };
+
+  const onNodesChange = useCallback((changes: NodeChange[]) => {
+      setNodes((nds) => {
+        const applied = applyNodeChanges(changes, nds);
+        if (changes.some(c => c.type !== 'select')) {
+            dispatchUpdate(applied, edges, theme, settings);
+        }
+        return applied;
+      });
+  }, [edges, theme, settings]); // eslint-disable-line
+
+  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
+      setEdges((eds) => {
+        const applied = applyEdgeChanges(changes, eds);
+        dispatchUpdate(nodes, applied, theme, settings);
+        return applied;
+      });
+  }, [nodes, theme, settings]); // eslint-disable-line
+
+  const onConnect = useCallback((connection: Connection) => {
+      const condition = window.prompt("Enter Edge Condition (e.g. 'If Yes', 'If > 18'). Leave blank for Default Flow.", "Default Flow");
+      setEdges((eds) => {
+        const newConn = { ...connection, label: condition || 'Default Flow', animated: true };
+        const applied = addEdge(newConn, eds);
+        dispatchUpdate(nodes, applied, theme, settings);
+        return applied;
+      });
+  }, [nodes, theme, settings]); // eslint-disable-line
 
   const handleDropCanvas = (e: React.DragEvent) => {
     e.preventDefault();
@@ -156,7 +194,7 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
     const newNode = {
        id: Math.random().toString(),
        position: { x: e.clientX - 300, y: e.clientY - 100 },
-       data: { label: `New ${type.replace('_', ' ')} field`, type }
+       data: { label: `New ${type.replace('_', ' ')} field`, type, is_required: false, options: ['Option 1', 'Option 2'] }
     };
     dispatchUpdate([...nodes, newNode]);
   };
@@ -165,7 +203,7 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
     const newNode = {
        id: Math.random().toString(),
        position: { x: 100, y: 100 + (nodes.length * 50) },
-       data: { label: `New ${type.replace('_', ' ')} field`, type }
+       data: { label: `New ${type.replace('_', ' ')} field`, type, is_required: false, options: ['Option 1', 'Option 2'] }
     };
     dispatchUpdate([...nodes, newNode]);
   };
@@ -181,11 +219,8 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
       if (data.schema) {
          const parsed = JSON.parse(data.schema);
          dispatchUpdate(parsed.nodes || [], parsed.edges || []);
-         // stay in current view but maybe scroll to top
       }
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
   };
 
   const handleSave = async () => {
@@ -193,31 +228,24 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/workshop/forms/${id}`, {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          nodes,
-          edges,
-          theme,
-          settings
-        })
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ nodes, edges, theme, settings })
       });
-      if (res.ok) {
-        alert("COMPILATION SUCCESSFUL: DATA PERSISTED.");
-      } else {
-        alert("TRANSMISSION ERROR: SAVE FAILED.");
-      }
-    } catch (e) {
-      console.error(e);
-      alert("SYSTEM FAILURE: COULD NOT REACH BACKEND.");
-    }
+      if (res.ok) alert("COMPILATION SUCCESSFUL: DATA PERSISTED.");
+      else alert("TRANSMISSION ERROR: SAVE FAILED.");
+    } catch (e) { alert("SYSTEM FAILURE: COULD NOT REACH BACKEND."); }
+  };
+
+  const updateNodeData = (nodeId: string, newData: any) => {
+      const updated = nodes.map(n => n.id === nodeId ? { ...n, data: { ...n.data, ...newData } } : n);
+      dispatchUpdate(updated, edges, theme, settings);
   };
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
      sendMessage({ type: 'CURSOR_MOVE', clientId: myId.current, x: e.clientX, y: e.clientY });
   }, [sendMessage]);
+
+  const selectedNode = nodes.find(n => n.id === selectedNodeId);
 
   return (
     <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)', color: 'var(--text-dark)' }}>
@@ -233,7 +261,6 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
             <span style={{color: isConnected ? 'var(--accent)' : 'red', fontWeight: 'bold'}}>
                {isConnected ? "🟢 PULSE ACTIVE" : "🔴 OFFLINE"}
             </span>
-            <p style={{fontSize: '0.7rem', opacity: 0.6}}>FORM ID: {id}</p>
         </div>
         
         <div style={{ margin: '2rem 0', display: 'flex', border: 'var(--border-width) solid var(--primary)', borderRadius: '4px', overflow: 'hidden' }}>
@@ -249,9 +276,9 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
            </button>
         </div>
         
-        <h3 style={{marginTop: '2rem', textTransform: 'uppercase', fontSize: '0.9rem'}}>Field Types</h3>
+        <h3 style={{textTransform: 'uppercase', fontSize: '0.9rem'}}>Field Types</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '1rem' }}>
-          {['short', 'long', 'choice', 'rating', 'emoji', 'email', 'calendar', 'file', 'audio', 'signature', 'image_mcq'].map(type => (
+          {['short_answer', 'long_answer', 'number', 'dropdown', 'radio', 'rating', 'date_range', 'file'].map(type => (
             <div 
               key={type} 
               draggable 
@@ -273,6 +300,7 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
 
       <div 
         onMouseMove={handleMouseMove}
+        onClick={() => { if(viewMode === 'canvas') setSelectedNodeId(null) }}
         style={{ flex: 1, position: 'relative', overflow: 'hidden', background: theme.background }}>
         
         {Object.values(remoteCursors).map(c => (
@@ -295,48 +323,28 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
                <h2 style={{fontFamily: theme.font_family, color: theme.primary_color, marginBottom: '3rem', fontSize: '2.5rem', fontWeight: 900}}>PROJECT DRAFT</h2>
                {nodes.length === 0 && <h3 style={{color: 'var(--text-light)', textAlign: 'center', marginTop: '5rem', opacity: 0.5}}>Drag & Drop or use AI to begin.</h3>}
                 {nodes.map((n) => (
-                  <div key={n.id} style={{ marginBottom: '2.5rem', fontFamily: theme.font_family }}>
-                    <label style={{ display: 'block', fontWeight: 900, marginBottom: '0.75rem', textTransform: 'uppercase', fontSize: '0.8rem' }}>{n.data.label as string}</label>
-                    
-                    {n.data.type === 'long' ? (
-                      <textarea style={{width:'100%', padding:'1rem', border: `2px solid ${theme.primary_color}`, borderRadius: `${theme.border_radius}px`, background: 'transparent'}} disabled />
-                    ) : n.data.type === 'choice' ? (
-                      <select style={{width:'100%', padding:'1rem', border: `2px solid ${theme.primary_color}`, borderRadius: `${theme.border_radius}px`, background: 'transparent'}} disabled>
-                        <option>SELECT OPTION...</option>
-                      </select>
-                    ) : n.data.type === 'rating' ? (
-                      <div style={{display:'flex', gap:'0.5rem'}}>
-                        {[1,2,3,4,5].map(i => <div key={i} style={{width:'40px', height:'40px', border:`2px solid ${theme.primary_color}`, display:'grid', placeItems:'center', fontWeight:900}}>★</div>)}
-                      </div>
-                    ) : n.data.type === 'emoji' ? (
-                      <div style={{display:'flex', gap:'1rem', fontSize:'2rem', opacity:0.5}}>
-                        😢 😐 🙂 😍
-                      </div>
-                    ) : n.data.type === 'calendar' ? (
-                      <input type="date" style={{width:'100%', padding:'1rem', border: `2px solid ${theme.primary_color}`, borderRadius: `${theme.border_radius}px`, background: 'transparent'}} disabled />
-                    ) : n.data.type === 'signature' ? (
-                      <div style={{width:'100%', height:'100px', border: `2px dashed ${theme.primary_color}`, display:'grid', placeItems:'center', opacity:0.5, fontSize:'0.7rem'}}>DIGITAL SIGNATURE AREA</div>
-                    ) : n.data.type === 'image_mcq' ? (
-                      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem'}}>
-                        {[1,2].map(i => <div key={i} style={{height:'100px', border:`2px solid ${theme.primary_color}`, background:'var(--card-bg)', opacity:0.5}}></div>)}
-                      </div>
-                    ) : n.data.type === 'file' || n.data.type === 'audio' ? (
-                      <div style={{padding:'1rem', border:`2px solid ${theme.primary_color}`, borderStyle:'dashed', textAlign:'center', fontSize:'0.8rem'}}>UPLOAD {n.data.type.toUpperCase()}</div>
-                    ) : (
-                      <input type="text" style={{width:'100%', padding:'1rem', border: `2px solid ${theme.primary_color}`, borderRadius: `${theme.border_radius}px`, background: 'transparent'}} disabled />
-                    )}
+                  <div 
+                    key={n.id} 
+                    onClick={(e) => { e.stopPropagation(); setSelectedNodeId(n.id); }}
+                    style={{ marginBottom: '2.5rem', fontFamily: theme.font_family, padding: '1rem', outline: selectedNodeId === n.id ? '2px dashed var(--accent)' : 'none', cursor: 'pointer' }}>
+                    <label style={{ display: 'block', fontWeight: 900, marginBottom: '0.75rem', textTransform: 'uppercase', fontSize: '0.8rem' }}>
+                        {String(n.data.label)} {!!n.data.is_required && <span style={{color:'red'}}>*</span>}
+                    </label>
+                    <input type="text" placeholder={n.data.type as string} style={{width:'100%', padding:'1rem', border: `2px solid ${theme.primary_color}`, borderRadius: `${theme.border_radius}px`, background: 'transparent'}} disabled />
                   </div>
                 ))}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4rem' }}>
+                <button className="btn btn-secondary">{settings.buttons?.prevText || "Previous"}</button>
+                <button className="btn btn-primary">{settings.buttons?.submitText || "Submit"}</button>
+              </div>
              </div>
            </div>
         ) : (
            <div style={{ width: '100%', height: '100%' }}>
              <ReactFlow 
-                nodes={nodes} 
-                edges={edges} 
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
+                nodes={nodes} edges={edges} 
+                onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect}
                 fitView
              >
                 <Controls />
@@ -346,29 +354,78 @@ const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/
         )}
       </div>
 
-      <div style={{ width: '280px', borderLeft: 'var(--border-width) solid var(--primary)', padding: '2rem', background: 'var(--card-bg)', zIndex: 10, backdropFilter: 'var(--blur)' }}>
-        <h2 style={{fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase'}}>Global Styles</h2>
-        <div style={{marginTop: '2rem'}}>
-           <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Border Radius</label>
-           <input type="range" min="0" max="48" value={theme.border_radius ?? 0} onChange={e => dispatchUpdate(nodes, edges, {...theme, border_radius: parseInt(e.target.value)}, settings)} style={{width: '100%'}}/>
-        </div>
-        <div style={{marginTop: '2rem'}}>
-           <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Accent Color</label>
-           <input type="color" value={theme.primary_color ?? '#000000'} onChange={e => dispatchUpdate(nodes, edges, {...theme, primary_color: e.target.value}, settings)} style={{width: '100%', height:'50px', border: 'var(--border-width) solid var(--primary)', cursor: 'pointer', background: 'transparent'}}/>
-        </div>
-        <div style={{marginTop: '2rem'}}>
-           <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Base Material</label>
-           <input type="color" value={theme.background ?? '#ffffff'} onChange={e => dispatchUpdate(nodes, edges, {...theme, background: e.target.value}, settings)} style={{width: '100%', height:'50px', border: 'var(--border-width) solid var(--primary)', cursor: 'pointer', background: 'transparent'}}/>
-        </div>
-        
-        <div style={{ marginTop: '4rem', borderTop: 'var(--border-width) solid var(--primary)', paddingTop: '2rem' }}>
-           <h3 style={{fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase'}}>Core Engine</h3>
-           <label style={{display:'flex', alignItems:'center', gap:'0.75rem', marginTop: '1.5rem', fontWeight: 900, cursor: 'pointer', fontSize: '0.8rem'}}>
-             <input type="checkbox" checked={!!settings.gamification} onChange={e => dispatchUpdate(nodes, edges, theme, {gamification: e.target.checked})} style={{width:'24px', height:'24px', cursor: 'pointer'}}/>
-              GAMIFICATION MODE
-            </label>
-            <button onClick={handleSave} className="btn btn-primary" style={{width: '100%', marginTop: '3rem', fontSize:'1rem', height:'60px'}}>SAVE PROJECT</button>
-         </div>
+      <div style={{ width: '280px', borderLeft: 'var(--border-width) solid var(--primary)', padding: '2rem', background: 'var(--card-bg)', overflowY: 'auto', zIndex: 10, backdropFilter: 'var(--blur)' }}>
+        {selectedNode ? (
+            <>
+                <h2 style={{fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', color: 'var(--accent)'}}>Properties</h2>
+                <div style={{marginTop: '2rem'}}>
+                   <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Label</label>
+                   <input type="text" value={selectedNode.data.label as string} onChange={e => updateNodeData(selectedNode.id, { label: e.target.value })} style={{width: '100%', padding: '0.5rem'}}/>
+                </div>
+                <div style={{marginTop: '1.5rem'}}>
+                   <label style={{display:'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase'}}>
+                      <input type="checkbox" checked={!!selectedNode.data.is_required} onChange={e => updateNodeData(selectedNode.id, { is_required: e.target.checked })} />
+                      Is Required?
+                   </label>
+                </div>
+                {selectedNode.data.type === 'number' && (
+                    <div style={{marginTop: '1.5rem', display: 'flex', gap: '1rem'}}>
+                        <div>
+                           <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Min</label>
+                           <input type="number" value={selectedNode.data.min as number || ''} onChange={e => updateNodeData(selectedNode.id, { min: e.target.value ? Number(e.target.value) : undefined })} style={{width: '100%', padding: '0.5rem'}}/>
+                        </div>
+                        <div>
+                           <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Max</label>
+                           <input type="number" value={selectedNode.data.max as number || ''} onChange={e => updateNodeData(selectedNode.id, { max: e.target.value ? Number(e.target.value) : undefined })} style={{width: '100%', padding: '0.5rem'}}/>
+                        </div>
+                    </div>
+                )}
+                {(selectedNode.data.type === 'dropdown' || selectedNode.data.type === 'radio') && (
+                    <div style={{marginTop: '1.5rem'}}>
+                       <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Options (comma separated)</label>
+                       <textarea 
+                           value={(selectedNode.data.options as string[] || []).join(', ')} 
+                           onChange={e => updateNodeData(selectedNode.id, { options: e.target.value.split(',').map(s=>s.trim()) })} 
+                           style={{width: '100%', padding: '0.5rem', minHeight: '80px'}}/>
+                    </div>
+                )}
+                <button onClick={() => setNodes(nodes.filter(n => n.id !== selectedNode.id))} style={{width: '100%', marginTop: '2rem', padding: '0.5rem', background: 'red', color: 'white', fontWeight: 'bold', border: 'none', cursor: 'pointer'}}>DELETE NODE</button>
+            </>
+        ) : (
+            <>
+                <h2 style={{fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase'}}>Global Config</h2>
+                <div style={{marginTop: '2rem'}}>
+                   <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Submit Button</label>
+                   <input type="text" value={settings.buttons?.submitText || ''} onChange={e => dispatchUpdate(nodes, edges, theme, {...settings, buttons: {...settings.buttons, submitText: e.target.value} as any})} style={{width: '100%', padding: '0.5rem'}}/>
+                </div>
+                <div style={{marginTop: '1rem'}}>
+                   <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Next Button</label>
+                   <input type="text" value={settings.buttons?.nextText || ''} onChange={e => dispatchUpdate(nodes, edges, theme, {...settings, buttons: {...settings.buttons, nextText: e.target.value} as any})} style={{width: '100%', padding: '0.5rem'}}/>
+                </div>
+                
+                <div style={{marginTop: '2rem'}}>
+                   <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Border Radius</label>
+                   <input type="range" min="0" max="48" value={theme.border_radius ?? 0} onChange={e => dispatchUpdate(nodes, edges, {...theme, border_radius: parseInt(e.target.value)}, settings)} style={{width: '100%'}}/>
+                </div>
+                <div style={{marginTop: '2rem'}}>
+                   <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Accent Color</label>
+                   <input type="color" value={theme.primary_color ?? '#000000'} onChange={e => dispatchUpdate(nodes, edges, {...theme, primary_color: e.target.value}, settings)} style={{width: '100%', height:'50px', border: 'var(--border-width) solid var(--primary)', cursor: 'pointer', background: 'transparent'}}/>
+                </div>
+                <div style={{marginTop: '2rem'}}>
+                   <label style={{display:'block', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem'}}>Base Material</label>
+                   <input type="color" value={theme.background ?? '#ffffff'} onChange={e => dispatchUpdate(nodes, edges, {...theme, background: e.target.value}, settings)} style={{width: '100%', height:'50px', border: 'var(--border-width) solid var(--primary)', cursor: 'pointer', background: 'transparent'}}/>
+                </div>
+
+                 <div style={{ marginTop: '2rem', borderTop: 'var(--border-width) solid var(--primary)', paddingTop: '2rem' }}>
+                   <label style={{display:'flex', alignItems:'center', justifyItems:'center', gap:'0.75rem', fontWeight: 900, cursor: 'pointer', fontSize: '0.8rem'}}>
+                     <input type="checkbox" checked={!!settings.gamification} onChange={e => dispatchUpdate(nodes, edges, theme, {...settings, gamification: e.target.checked})} style={{width:'18px', height:'18px', cursor: 'pointer'}}/>
+                      GAMIFICATION MODE
+                    </label>
+                    <button onClick={handleSave} className="btn btn-primary" style={{width: '100%', marginTop: '2rem', fontSize:'1rem', height:'50px'}}>SAVE PROJECT</button>
+                    <p style={{fontSize: '0.7rem', opacity: 0.5, marginTop: '1rem', textAlign: 'center'}}>CTRL+Z to Undo, CTRL+Y to Redo</p>
+                 </div>
+            </>
+        )}
       </div>
     </div>
   );

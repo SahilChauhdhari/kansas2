@@ -1,0 +1,1 @@
+﻿src/app/workshop/[id]/page.tsx(331,48): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
