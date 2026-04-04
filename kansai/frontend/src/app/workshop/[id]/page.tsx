@@ -48,7 +48,8 @@ export default function Workshop() {
   const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_THEME);
   const [settings, setSettings] = useState<FormSettings>(DEFAULT_SETTINGS);
 
-  const { sendMessage, lastMessage, isConnected } = useWebSocket(`ws://localhost:8001/ws/form/${id}`);
+const wsBaseUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8001';
+const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/form/${id}`);
   const myId = useRef(Math.random().toString(36).substring(7));
 
   useEffect(() => {
