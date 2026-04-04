@@ -43,7 +43,7 @@ export default function Home() {
               <ul className="nav-links">
                   <li><a href="#features">Features</a></li>
                   <li><Link href="/dashboard">Workshop</Link></li>
-                  <li><Link href="/analytics">Analytics</Link></li>
+
                   {user ? (
                     <li><button onClick={logout} className="nav-link-btn">Logout ({user.username})</button></li>
                   ) : (
