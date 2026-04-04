@@ -4,17 +4,19 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import ThemeSwitcher from '../../components/ThemeSwitcher';
+import { useAuth } from '@/context/AuthContext';
 
 export default function FormAnalytics() {
   const { id } = useParams();
+  const { token } = useAuth();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || !token) return;
     
     const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/analytics/form/${id}/metrics`;
-    fetch(url)
+    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -47,7 +49,7 @@ export default function FormAnalytics() {
         setLoading(false);
         setData(null);
       });
-  }, [id]);
+  }, [id, token]);
 
   if (loading) return <div className="loading">Analyzing Data Engine...</div>;
 
