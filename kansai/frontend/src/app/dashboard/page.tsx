@@ -97,10 +97,10 @@ export default function Dashboard() {
     <div className="dashboard-container">
       <nav className="navbar">
         <div className="navbar-container">
-          <div className="logo">
+          <Link href="/" className="logo" style={{textDecoration: 'none', color: 'var(--text-dark)'}}>
             <span className="logo-icon">⚡</span>
-            <span className="logo-text">STUDIO</span>
-          </div>
+            <span className="logo-text">SCRIBA</span>
+          </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
              <span style={{fontWeight: 900, fontSize: '0.8rem', opacity: 0.6}}>USER: {user.username.toUpperCase()}</span>
             <ThemeSwitcher />
@@ -126,8 +126,8 @@ export default function Dashboard() {
               <div className="card-actions">
                 <Link href={`/workshop/${form.id}`}><button className="btn btn-small">Build</button></Link>
                 <Link href={`/analytics/${form.id}`}><button className="btn btn-small btn-secondary">Stats</button></Link>
+                <Link href={`/vault/${form.id}`}><button className="btn btn-small btn-secondary">Vault (Data)</button></Link>
                 <Link href={`/stage/${form.slug}`} target="_blank"><button className="btn btn-small btn-secondary">Visit</button></Link>
-                
                 <div style={{marginLeft: 'auto', display: 'flex', gap: '0.5rem'}}>
                   <button onClick={() => handleRenameForm(form.id, form.title)} className="btn btn-small btn-secondary" title="Rename"><i className="fas fa-edit"></i> ✏️</button>
                   <button onClick={() => handleDeleteForm(form.id)} className="btn btn-small" style={{background: 'var(--accent-4, #ff3366)', color: 'white', borderColor: 'var(--primary)'}} title="Delete">🗑️</button>
