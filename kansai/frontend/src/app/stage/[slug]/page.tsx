@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -269,10 +268,6 @@ export default function PublicForm() {
           </button>
         </form>
       </div>
-      
-      <Link href="/" style={{position: 'fixed', bottom: '1.5rem', right: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 900, textDecoration: 'none', color: 'var(--text-dark)', fontSize: '1rem', zIndex: 100, opacity: 0.7}}>
-         <span>Powered by</span> <span style={{fontSize: '1.2rem'}}>⚡</span> SCRIBA
-      </Link>
 
       <style jsx>{`
         .stage-bg {

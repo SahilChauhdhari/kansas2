@@ -48,8 +48,6 @@ export default function Workshop() {
 
   const [formSlug, setFormSlug] = useState<string | null>(null);
   const [showShare, setShowShare] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [showInviteModal, setShowInviteModal] = useState(false);
 
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -61,7 +59,7 @@ export default function Workshop() {
   const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_THEME);
   const [settings, setSettings] = useState<FormSettings>(DEFAULT_SETTINGS);
 
-  const wsBaseUrl = process.env.NEXT_PUBLIC_WS_URL || (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8001').replace(/^http/, 'ws');
+  const wsBaseUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8001';
   const { sendMessage, lastMessage, isConnected } = useWebSocket(`${wsBaseUrl}/ws/form/${id}`);
   const myId = useRef(Math.random().toString(36).substring(7));
 
@@ -258,27 +256,6 @@ export default function Workshop() {
     setShowShare(true);
   };
 
-  const handleInvite = async () => {
-    if (!token || !id) return;
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8001'}/workshop/forms/${id}/invite`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ email: inviteEmail })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert(`Successfully invited ${data.user?.username || inviteEmail}`);
-        setShowInviteModal(false);
-        setInviteEmail('');
-      } else {
-        alert(data.detail || 'Failed to invite user.');
-      }
-    } catch (e) {
-      alert('Error connecting to backend.');
-    }
-  };
-
   const updateNodeData = (nodeId: string, newData: any) => {
       const updated = nodes.map(n => n.id === nodeId ? { ...n, data: { ...n.data, ...newData } } : n);
       dispatchUpdate(updated, edges, theme, settings);
@@ -295,15 +272,11 @@ export default function Workshop() {
 
       <div style={{ width: '300px', borderRight: 'var(--border-width) solid var(--primary)', padding: '2rem', background: 'var(--card-bg)', overflowY: 'auto', zIndex: 10, backdropFilter: 'var(--blur)' }}>
         <h2 style={{fontWeight: 900, fontSize: '2rem'}}>WORKSHOP</h2>
-        <div style={{ margin: '1rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ margin: '1rem 0' }}>
             <span style={{color: isConnected ? 'var(--accent)' : 'red', fontWeight: 'bold'}}>
                {isConnected ? "🟢 PULSE ACTIVE" : "🔴 OFFLINE"}
             </span>
-            <span style={{fontWeight: 'bold', fontSize: '0.8rem', background: 'black', color: 'white', padding: '2px 8px', borderRadius: '12px'}}>
-               {Object.keys(remoteCursors).length + 1} ONLINE
-            </span>
         </div>
-        <button onClick={() => setShowInviteModal(true)} className="btn btn-secondary" style={{width: '100%', marginBottom: '1rem', padding: '0.5rem', fontWeight: 'bold'}}>+ INVITE ADMIN</button>
         
         <div style={{ margin: '2rem 0', display: 'flex', border: 'var(--border-width) solid var(--primary)', borderRadius: '4px', overflow: 'hidden' }}>
            <button 
@@ -347,7 +320,6 @@ export default function Workshop() {
         
         {/* Navbar Overlay */}
         <div style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 100, display: 'flex', gap: '1rem', alignItems: 'center' }}>
-           <Link href="/"><button className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontWeight: 'bold' }}>Home</button></Link>
            <ThemeSwitcher />
            <Link href="/dashboard"><button className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontWeight: 'bold' }}>Studio</button></Link>
         </div>
@@ -503,21 +475,6 @@ export default function Workshop() {
             </>
         )}
       </div>
-
-      {showInviteModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: 'var(--card-bg)', padding: '2.5rem', border: 'var(--border-width) solid var(--primary)', width: '400px', boxShadow: 'var(--card-shadow)' }}>
-                <h3 style={{marginBottom: '1.5rem', textTransform: 'uppercase', fontWeight: 900, fontSize: '1.5rem'}}>Invite Admin</h3>
-                <p style={{fontSize: '0.8rem', marginBottom: '1rem', color: 'var(--text-light)'}}>Enter the full email address of a user to instantly grant them editing privileges.</p>
-                <input type="email" placeholder="User's registered email..." value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} style={{width: '100%', padding: '1rem', marginBottom: '1.5rem', border: 'var(--border-width) solid var(--primary)', background: 'var(--bg)', outline: 'none', fontWeight: 'bold'}} />
-                <div style={{display: 'flex', gap: '1rem'}}>
-                   <button onClick={handleInvite} className="btn btn-primary" style={{flex: 1}}>Send Invite</button>
-                   <button onClick={() => setShowInviteModal(false)} className="btn btn-secondary" style={{flex: 1}}>Cancel</button>
-                </div>
-            </div>
-        </div>
-      )}
-
     </div>
   );
 }

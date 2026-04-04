@@ -16,18 +16,7 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const { user, token, logout } = useAuth();
-  const [forms, setForms] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (!token) return;
-    fetch((process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8001') + '/workshop/forms', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(res => res.ok ? res.json() : [])
-    .then(data => setForms(data))
-    .catch(() => {});
-  }, [token]);
+  const { user, logout } = useAuth();
 
   // Keyboard shortcut to open modal
   useEffect(() => {
@@ -75,29 +64,10 @@ export default function Home() {
                   <p className="hero-subtitle">Create powerful forms with zero coding. Launch in minutes. Scale infinitely.</p>
                   <div className="hero-buttons">
                       <Link href="/dashboard">
-                        <button className="btn btn-primary">{user ? "Enter Studio" : "Start Building Free"}</button>
+                        <button className="btn btn-primary">Start Building Free</button>
                       </Link>
                       <button className="btn btn-secondary">Watch Demo</button>
                   </div>
-                  
-                  {user && forms.length > 0 && (
-                      <div style={{marginTop: '3rem', background: 'var(--card-bg)', border: 'var(--border-width) solid var(--primary)', padding: '2rem', boxShadow: 'var(--card-shadow)'}}>
-                         <h3 style={{textTransform: 'uppercase', fontWeight: 900, marginBottom: '1rem', borderBottom: '2px dashed var(--primary)', paddingBottom: '0.5rem'}}>Quick Access Endpoints</h3>
-                         <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-                             {forms.slice(0,3).map((f:any) => (
-                                 <div key={f.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem'}}>
-                                     <strong style={{fontSize: '1.2rem'}}>{f.title}</strong>
-                                     <div style={{display: 'flex', gap: '0.5rem'}}>
-                                        <Link href={`/workshop/${f.id}`}><button className="btn" style={{padding: '0.4rem 0.8rem', fontSize:'0.8rem'}}>Workshop</button></Link>
-                                        <Link href={`/analytics/${f.id}`}><button className="btn" style={{padding: '0.4rem 0.8rem', fontSize:'0.8rem', background:'var(--accent-2)'}}>Analytics</button></Link>
-                                        <Link href={`/vault/${f.id}`}><button className="btn" style={{padding: '0.4rem 0.8rem', fontSize:'0.8rem', background:'var(--accent-3)'}}>Vault</button></Link>
-                                     </div>
-                                 </div>
-                             ))}
-                             {forms.length > 3 && <Link href="/dashboard" style={{textAlign: 'center', marginTop: '1rem', fontWeight: 'bold', color: 'var(--accent)', textDecoration: 'none'}}>View All Projects &rarr;</Link>}
-                         </div>
-                      </div>
-                  )}
               </div>
               <div className="hero-illustration">
                   <div className="shape shape-1" style={{background: 'var(--accent)'}}></div>
