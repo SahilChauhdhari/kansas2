@@ -45,7 +45,7 @@ export default function Home() {
                   <li><Link href="/dashboard">Workshop</Link></li>
 
                   {user ? (
-                    <li><button onClick={logout} className="nav-link-btn">Logout ({user.username})</button></li>
+                    <li><span onClick={logout} style={{ cursor: 'pointer', fontWeight: 600, color: 'var(--accent)' }}>Logout ({user.username})</span></li>
                   ) : (
                     <li><Link href="/login">Login</Link></li>
                   )}
@@ -73,37 +73,37 @@ export default function Home() {
                   <div className="shape shape-1" style={{background: 'var(--accent)'}}></div>
                   <div className="shape shape-2" style={{background: 'var(--accent-2)'}}></div>
                   <div className="shape shape-3" style={{background: 'var(--accent-3)'}}></div>
-                  <div className="floating-card" style={{background: 'var(--card-bg)', border: 'var(--border-width) solid var(--primary)', boxShadow: 'var(--card-shadow)', backdropFilter: 'var(--blur)'}}>
-                      <div className="card-item" style={{borderBottom: '2px solid var(--primary)', justifyContent: 'center', fontSize: '2.5rem', padding: '1rem'}}>📋</div>
-                      <div className="card-item" style={{borderBottom: 'none', justifyContent: 'center', fontSize: '2.5rem', padding: '1rem'}}>📊</div>
-                  </div>
               </div>
           </div>
       </section>
 
-      <section className="features" id="features">
-          <div className="section-header">
-              <h2>Powerful Features</h2>
-              <p>Everything you need to create stunning forms</p>
+      <footer className="footer" id="features">
+          <div className="footer-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '2rem' }}>
+              <div>
+                  <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>FormFlow Features</h3>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '3rem', justifyContent: 'center' }}>
+                      <li style={{ maxWidth: '250px' }}>
+                          <span style={{ fontSize: '1.5rem', display: 'block', marginBottom: '0.5rem' }}>🎨</span>
+                          <strong>Visual Builder</strong>
+                          <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>Drag-and-drop interface. No coding required.</p>
+                      </li>
+                      <li style={{ maxWidth: '250px' }}>
+                          <span style={{ fontSize: '1.5rem', display: 'block', marginBottom: '0.5rem' }}>⚙️</span>
+                          <strong>Smart Logic</strong>
+                          <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>Conditional fields and dynamic calculations.</p>
+                      </li>
+                      <li style={{ maxWidth: '250px' }}>
+                          <span style={{ fontSize: '1.5rem', display: 'block', marginBottom: '0.5rem' }}>🚀</span>
+                          <strong>Real-Time Editors</strong>
+                          <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>Build forms simultaneously with your team.</p>
+                      </li>
+                  </ul>
+              </div>
           </div>
-          <div className="features-grid">
-              <div className="feature-card">
-                  <div className="feature-icon">🎨</div>
-                  <h3>Visual Builder</h3>
-                  <p>Drag-and-drop interface. No coding required. Build complex forms in minutes.</p>
-              </div>
-              <div className="feature-card">
-                  <div className="feature-icon">⚙️</div>
-                  <h3>Smart Logic</h3>
-                  <p>Conditional fields, branching logic, and dynamic calculations built-in.</p>
-              </div>
-              <div className="feature-card">
-                  <div className="feature-icon">🚀</div>
-                  <h3>Real-Time Editors</h3>
-                  <p>Build forms simultaneously with your team using real-time remote cursors.</p>
-              </div>
+          <div className="footer-bottom" style={{ marginTop: '2rem' }}>
+              &copy; {new Date().getFullYear()} FormFlow. All rights reserved.
           </div>
-      </section>
+      </footer>
 
       {modalOpen && (
         <div className="modal active">
